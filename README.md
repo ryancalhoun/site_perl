@@ -1,4 +1,5 @@
 site_perl
 =========
 
-Perl modules
+A handful of useful perl modules.
+
