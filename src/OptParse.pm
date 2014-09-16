@@ -10,6 +10,7 @@ use Pod::Usage;
 
 our $prog = basename($0, '.pl');
 our $banner;
+our $description;
 our $caller;
 
 sub import
@@ -19,8 +20,9 @@ sub import
 
 	$caller = (caller)[0];
 
-	$prog = $_ for grep { defined } $cfg{prog};
-	$banner = $_ for grep { defined } $cfg{banner};
+	$prog            = $_ for grep { defined } $cfg{prog};
+	$banner          = $_ for grep { defined } $cfg{banner};
+	$description     = $_ for grep { defined } $cfg{description};
 }
 
 sub formatusage
@@ -107,6 +109,7 @@ sub options(&)
 		sprintf("%s [options]$/", $prog),
 		@help, '', ''
 	);
+	$usagemsg .= "=head1 DESCRIPTION$/$/$description" if $description;
 
 	my $fn = sub {
 		local @ARGV = @_;

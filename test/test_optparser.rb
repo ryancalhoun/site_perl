@@ -232,6 +232,45 @@ class TestOptParse < Test::Unit::TestCase
 		assert_equal "in input.txt args foo,bar,wow\n", out
 	end 
 
+	def testDescription
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+			stdin.puts left_chomp(<<-END)
+				use OptParse
+					prog => 'testprog',
+					banner => 'A Test Program',
+					description => 'This is my test program description. It is cool. There are lots of things this program can do.';
+				my $opts = OptParse::options {
+					on('-h', '--help', 'display help', \\$help);
+					on('-v', '--version', 'display version', \\$version);
+				};
+				print "$opts";
+			END
+			stdin.close
+
+			STDERR.write stderr.read
+
+			stdout.read
+		}
+
+		expected = left_chomp(<<-END)
+			NAME
+			    testprog - A Test Program
+
+			SYNOPSIS
+			    testprog [options]
+
+			     -h --help                   display help
+			     -v --version                display version
+
+			DESCRIPTION
+			    This is my test program description. It is cool. There are lots of
+			    things this program can do.
+
+		END
+		assert_equal expected, out
+
+	end 
+
 
 	def left_chomp(str)
 		ws = /^\s+/.match(str)
