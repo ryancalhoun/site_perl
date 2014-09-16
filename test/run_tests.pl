@@ -14,7 +14,7 @@ BEGIN
 	use File::Basename;
 
 	$dirname = dirname($0);
-	unshift @INC, abs_path("$dirname/../lib"), abs_path("$dirname/common");
+	unshift @INC, abs_path("$dirname/../src"), abs_path("$dirname/common");
 }
 
 use UnitTest;
@@ -32,7 +32,10 @@ sub run_suites
 
 	opendir my $dir, $dirname or die "Failed to read test directory: $dirname";
 	my @suites = sort grep { !/^(\.|common$)/ and -d "$dirname/$_" } readdir $dir;
+
 	closedir $dir;
+
+	unshift @suites, '.';
 
 	my $results = {};
 	$results->{"$dirname/$_"} = run_suite($dirname, $_) for @suites;
