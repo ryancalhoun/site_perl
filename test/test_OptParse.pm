@@ -4,7 +4,8 @@ use UnitTest;
 use base 'UnitTest';
 
 use OptParse
-	prog => "testprog";
+	prog => "testprog",
+	banner => "A Test Program";
 
 sub test_default
 {
@@ -18,6 +19,18 @@ sub test_default
 		on('-v', '--version', "display version", \$version);
 	};
 
-	is("$opt", "", $name);
+my $expected =<<END;
+NAME
+    testprog - A Test Program
+
+SYNOPSIS
+    testprog [options]
+
+     -h --help                   display help
+     -v --version                display version
+
+END
+
+	is("$opt", $expected, $name);
 }
 

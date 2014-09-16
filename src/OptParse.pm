@@ -9,7 +9,7 @@ use File::Basename;
 use Pod::Usage;
 
 our $prog = basename($0, '.pl');
-our $banner = "usage: $prog [options]";
+our $banner;
 our $caller;
 
 sub import
@@ -31,10 +31,11 @@ sub formatusage
 	pod2usage(exit=>'NOEXIT', verbose=>3, input=>$infd, output=>$outfd);
 	close $infd;
 	close $outfd;
+
 	$out;
 }
 
-sub options(&@)
+sub options(&)
 {
 	my $block = \&{shift @_};
 
@@ -98,8 +99,8 @@ sub options(&@)
 	}
 
 	my $usagemsg = join($/,
-		join("$/$/", '=head1 NAME', $prog . ' - ' . $banner, '=head1 SYNOPSIS'),
-		sprintf(" %s [options]$/", $prog),
+		join("$/$/", '=head1 NAME', $prog . ' - ' . ($banner || ''), '=head1 SYNOPSIS', ''),
+		sprintf("%s [options]$/", $prog),
 		@help, '', ''
 	);
 
