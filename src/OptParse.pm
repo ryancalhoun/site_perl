@@ -72,7 +72,7 @@ sub options(&)
 			my $value;
 
 			($short,$value) = $short =~ $shortval if($short and $short =~ $shortval);
-			if($long =~ $longval)
+			if($long and $long =~ $longval)
 			{
 				die "cannot specify value name twice for single option ($long)" if $value;
 				($long,$value) = $long =~ $longval;
@@ -81,7 +81,7 @@ sub options(&)
 			if($long)
 			{
 				my $longtext = $value ? "$long $value" : $long;
-				push @help, sprintf " %-2s %-22s   %s", $short, $longtext, $desc || '';
+				push @help, sprintf " %-2s %-22s   %s", $short || '', $longtext, $desc || '';
 			}
 			else
 			{
@@ -89,7 +89,11 @@ sub options(&)
 				push @help, sprintf " %-2s %-22s   %s", $shorttext, "", $desc || '';
 			}
 
-			my $key = join('|', substr($short, 1), substr($long, 2));
+			my @names = ();
+			push @names, substr($short, 1) if $short;
+			push @names, substr($long, 2) if $long;
+
+			my $key = join('|', @names);
 			$key .= '=s' if $value;
 
 			$opts{$key} = $ref;
@@ -105,8 +109,12 @@ sub options(&)
 	);
 
 	my $fn = sub {
+		local @ARGV = @_;
+
 		open my $infd, '<', \$usagemsg;
 		Getopt::Long::GetOptions(%opts) or pod2usage(exitval=>1, verbose=>3, input=>$infd);
+
+		@ARGV;
 	};
 
 	my $package = "OptParse::$fn";
