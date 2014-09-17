@@ -32,7 +32,7 @@ provide a tab-complete semantic to navigate existing filenames.
 =item Prompt::directory $prompt_text
 
 Display prompt text and return a valid directory name. If the package Term::ReadKey (or the fallback /bin/stty) is available,
-provide a tab-complete.
+provide a tab-complete. Non-directories are filtered out of tab-complete candidates.
 
 =back
 
@@ -118,7 +118,7 @@ sub file
 
 sub directory
 {
-	my $f = complete_file(@_);
+	my $f = complete_file(@_, sub { grep { -d } @_ });
 }
 
 sub complete_file_basic
@@ -129,7 +129,10 @@ sub complete_file_basic
 
 sub complete_file_term
 {
-	my $p = shift;
+	my ($p,$filter) = @_;
+
+	$filter ||= sub { @_ };
+
 	print $p;
 
 	my $line = '';
@@ -182,7 +185,7 @@ sub complete_file_term
 		}
 		elsif($c eq "\t" and not -f $value)
 		{
-			@candidates = glob "$line*";
+			@candidates = $filter->(glob "$line*");
 
 			if(@candidates)
 			{
