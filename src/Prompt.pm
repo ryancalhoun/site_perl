@@ -26,12 +26,12 @@ the prompt will loop until satisfied.
 
 =item Prompt::file $prompt_text
 
-Display prompt text and return a valid filename. If the package Term::ReadKey (or the fallback /bin/stty) is available,
+Display prompt text and return a valid filename. If the input handle (STDIN) can be put into raw mode,
 provide a tab-complete semantic to navigate existing filenames.
 
 =item Prompt::directory $prompt_text
 
-Display prompt text and return a valid directory name. If the package Term::ReadKey (or the fallback /bin/stty) is available,
+Display prompt text and return a valid directory name. If the input handle (STDIN) can be put into raw mode,
 provide a tab-complete. Non-directories are filtered out of tab-complete candidates.
 
 =back
@@ -44,40 +44,6 @@ use File::Basename;
 our $IN = *STDIN;
 our $completion_limit = 100;
 
-my $stty = 0;
-
-BEGIN
-{
-	eval { require Term::ReadKey };
-
-	if(not $@)
-	{
-		*complete_file = \&complete_file_term;
-		*term_raw = sub { Term::ReadKey::ReadMode(4, $IN) };
-		*term_normal = sub { Term::ReadKey::ReadMode(1, $IN) };
-		*term_getc = sub { Term::ReadKey::ReadKey(0, $IN) };
-		*term_width = sub { (Term::ReadKey::GetTerminalSize(0, $IN))[0] };
-	}
-	elsif(-x '/bin/stty')
-	{
-		$stty = 1;
-		*complete_file = \&complete_file_term;
-		*term_raw = sub { system "stty raw icrnl opost -echo" };
-		*term_normal = sub { system "stty cooked echo" };
-		*term_getc = sub { getc };
-		*term_width = sub {
-			open my $s, "stty size|cut -d' ' -f2|";
-			chomp(my $w = <$s>);
-			close $s;
-			return $w;
-		};
-	}
-	else
-	{
-		*complete_file = \&complete_file_basic;
-	}
-}
-
 sub import
 {
 	my $pkg = shift;
@@ -86,10 +52,17 @@ sub import
 	my $caller = (caller)[0];
 
 	no strict 'refs';
+
 	$IN = *{$caller . '::' . $_} for grep { defined } $cfg{IN};
 	$completion_limit = $_ for grep { defined } $cfg{completion_limit};
 
-	*complete_file = \&complete_file_basic if $stty and ! -t $IN;
+	my $handle = (split(/::/, $IN))[-1];
+	*{$handle} = $IN;
+
+	require Terminal;
+	Terminal->import(IN=>$handle);
+
+	*complete_file = Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
 }
 
 sub string
@@ -148,7 +121,7 @@ sub complete_file_term
 	{
 		my @f = map { -d $_ ? basename($_) . '/' : basename($_) } @candidates;
 
-		my $termwidth = term_width();
+		my $termwidth = Terminal::width();
 		my $textwidth = (List::Util::max map { length($_) } @f) + 4;
 
 		my $cols = int($termwidth / $textwidth) || 1;
@@ -257,16 +230,16 @@ sub complete_file_term
 
 	$readchar = $readpath;
 
-	term_raw();
+	Terminal::raw();
 	eval
 	{
 		while(1)
 		{
-			my $c = term_getc();
+			my $c = Terminal::getchar();
 			last unless ord($c) and $readchar->($c);
 		}
 	};
-	term_normal();
+	Terminal::normal();
 
 	print "\n";
 
