@@ -38,7 +38,7 @@ end
 desc 'Run tests'
 Rake::TestTask.new {|t|
 	t.test_files = FileList['test/**/*est.rb']
-	t.verbose = true
+	t.options = '-v'
 }
 
 task :all => [:clean, :build, :test]

@@ -1,7 +1,7 @@
 require 'test/unit'
 require 'open3'
 
-class TestUtil < Test::Unit::TestCase
+class UtilTest < Test::Unit::TestCase
 
 	def testLongestCommonPrefix
 

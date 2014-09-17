@@ -1,7 +1,7 @@
 require 'test/unit'
 require 'open3'
 
-class TestOptParse < Test::Unit::TestCase
+class OptParseTest < Test::Unit::TestCase
 
 	def testDefault
 		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
