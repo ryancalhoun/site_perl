@@ -6,7 +6,7 @@ class TestPrompt < Test::Unit::TestCase
 
 	def testString
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use Prompt IN=>DATA;
 				my $s = Prompt::string("> ");
@@ -26,7 +26,7 @@ class TestPrompt < Test::Unit::TestCase
 
 	def testStringPattern
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use Prompt IN=>DATA;
 				my $s = Prompt::string("> ", qr/yes|no/);
@@ -46,7 +46,7 @@ class TestPrompt < Test::Unit::TestCase
 	end
 
 	def testFile
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use Prompt IN=>DATA;
 				my $f = Prompt::file("> ");
@@ -72,7 +72,7 @@ class TestPrompt < Test::Unit::TestCase
 		File.open('tmpdir/foo/bar/file.txt', 'w') {}
 		File.open('tmpdir/foo/bar/file.xml', 'w') {}
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use Prompt IN=>DATA;
 				my $f = Prompt::file("> ");
@@ -109,7 +109,7 @@ class TestPrompt < Test::Unit::TestCase
 		File.open('tmpdir/foo/bar/file.txt', 'w') {}
 		File.open('tmpdir/foo/bar/file.xml', 'w') {}
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use Prompt IN=>DATA, completion_limit=>1;
 				my $f = Prompt::file("> ");
@@ -150,7 +150,7 @@ class TestPrompt < Test::Unit::TestCase
 		File.open('tmpdir/file.txt', 'w') {}
 		File.open('tmpdir/foo/back.txt', 'w') {}
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use Prompt IN=>DATA;
 				my $f = Prompt::directory("> ");

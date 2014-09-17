@@ -4,7 +4,7 @@ require 'open3'
 class TestOptParse < Test::Unit::TestCase
 
 	def testDefault
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -38,7 +38,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testOption
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src - -hv") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -hv") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -62,7 +62,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testUnknownOption
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src - -q") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -q") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -83,7 +83,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testShortOnly
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -117,7 +117,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testLongOnly
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -151,7 +151,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testValues
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -187,7 +187,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testValuesOptions
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src - -iinput.txt --output=output.txt -d dir") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -iinput.txt --output=output.txt -d dir") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -211,7 +211,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testLeftovers
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src - -iinput.txt foo bar wow") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -iinput.txt foo bar wow") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
@@ -233,7 +233,7 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testDescription
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
 				use OptParse
 					prog => 'testprog',
