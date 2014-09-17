@@ -121,10 +121,9 @@ sub options(&)
 	};
 
 	my $package = "OptParse::$fn";
-	bless $fn;
 
 	no strict 'refs';
-	@{$package . '::ISA'} = (ref($fn));
+	@{$package . '::ISA'} = qw/OptParse/;
 	*{$package . '::_getmessage'} = sub { $usagemsg };
 	bless $fn, $package;
 }
