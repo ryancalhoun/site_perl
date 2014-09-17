@@ -61,9 +61,10 @@ sub import
 	*{$handle} = $IN;
 
 	require CommandLine::Terminal;
-	CommandLine::Terminal->import(IN=>$handle);
+	CommandLine::Terminal->import(map { $_ => $cfg{$_} } grep { /IN/ } keys %cfg);
 
 	*complete_file = CommandLine::Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
+	*getline = CommandLine::Terminal::supports_raw() ? \&getline_term : \&getline_basic;
 }
 
 sub string
@@ -74,7 +75,7 @@ sub string
 	my $value;
 	while(1)
 	{
-		chomp($value = <$IN>);
+		$value = getline();
 		if($value and $exp and $value !~ $exp)
 		{
 			print "Not understood, try again: ";
@@ -93,6 +94,51 @@ sub file
 sub directory
 {
 	my $f = complete_file(@_, sub { grep { -d } @_ });
+}
+
+sub getline_basic
+{
+	chomp(my $value = <$IN>);
+	$value;
+}
+
+sub getline_term
+{
+	my $value = '';
+
+	CommandLine::Terminal::raw();
+	eval
+	{
+		while(1)
+		{
+			my $c = CommandLine::Terminal::getchar();
+			if(ord($c) == 0 or ord($c) == 3 or ord($c) == 4)
+			{
+				undef $value;
+				last;
+			}
+			elsif($c eq "\n")
+			{
+				last;
+			}
+			elsif(ord($c) == 8 or ord($c) == 127)
+			{
+				print "\b \b";
+				chop $value;
+			}
+			elsif($c =~ /[[:print:]]/)
+			{
+				print $c;
+				$value .= $c;
+			}
+		}
+	};
+	CommandLine::Terminal::normal();
+
+	print "\n";
+
+	die $@ if($@);
+	$value;
 }
 
 sub complete_file_basic

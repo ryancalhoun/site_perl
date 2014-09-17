@@ -2,7 +2,7 @@ require 'test/unit'
 require 'open3'
 require 'fileutils'
 
-class TestPrompt < Test::Unit::TestCase
+class PromptTest < Test::Unit::TestCase
 
 	def testString
 
@@ -10,7 +10,7 @@ class TestPrompt < Test::Unit::TestCase
 			stdin.puts left_chomp(<<-END)
 				use CommandLine::Prompt IN=>DATA;
 				my $s = CommandLine::Prompt::string("> ");
-				print "\nGOT $s\n";
+				print "GOT $s\n";
 				__DATA__
 				hello world
 			END
@@ -21,7 +21,7 @@ class TestPrompt < Test::Unit::TestCase
 			stdout.read
 		}
 
-		assert_equal "> \nGOT hello world\n", out
+		assert_equal "> hello world\nGOT hello world\n", out
 	end
 
 	def testStringPattern
@@ -30,7 +30,7 @@ class TestPrompt < Test::Unit::TestCase
 			stdin.puts left_chomp(<<-END)
 				use CommandLine::Prompt IN=>DATA;
 				my $s = CommandLine::Prompt::string("> ", qr/yes|no/);
-				print "\nGOT $s\n";
+				print "GOT $s\n";
 				__DATA__
 				goodbye
 				yes
@@ -42,7 +42,7 @@ class TestPrompt < Test::Unit::TestCase
 			stdout.read
 		}
 
-		assert_equal "> Not understood, try again: \nGOT yes\n", out
+		assert_equal "> goodbye\nNot understood, try again: yes\nGOT yes\n", out
 	end
 
 	def testFile
