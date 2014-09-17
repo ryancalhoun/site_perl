@@ -6,10 +6,10 @@ class TestPrompt < Test::Unit::TestCase
 
 	def testString
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use Prompt IN=>DATA;
-				my $s = Prompt::string("> ");
+				use CommandLine::Prompt IN=>DATA;
+				my $s = CommandLine::Prompt::string("> ");
 				print "\nGOT $s\n";
 				__DATA__
 				hello world
@@ -26,10 +26,10 @@ class TestPrompt < Test::Unit::TestCase
 
 	def testStringPattern
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use Prompt IN=>DATA;
-				my $s = Prompt::string("> ", qr/yes|no/);
+				use CommandLine::Prompt IN=>DATA;
+				my $s = CommandLine::Prompt::string("> ", qr/yes|no/);
 				print "\nGOT $s\n";
 				__DATA__
 				goodbye
@@ -46,10 +46,10 @@ class TestPrompt < Test::Unit::TestCase
 	end
 
 	def testFile
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use Prompt IN=>DATA;
-				my $f = Prompt::file("> ");
+				use CommandLine::Prompt IN=>DATA;
+				my $f = CommandLine::Prompt::file("> ");
 				print "GOT $f\n";
 				__DATA__
 				#{__FILE__}
@@ -72,10 +72,10 @@ class TestPrompt < Test::Unit::TestCase
 		File.open('tmpdir/foo/bar/file.txt', 'w') {}
 		File.open('tmpdir/foo/bar/file.xml', 'w') {}
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use Prompt IN=>DATA;
-				my $f = Prompt::file("> ");
+				use CommandLine::Prompt IN=>DATA;
+				my $f = CommandLine::Prompt::file("> ");
 				print "GOT $f\n";
 				__DATA__
 				tmpdir/	o			t	
@@ -109,10 +109,10 @@ class TestPrompt < Test::Unit::TestCase
 		File.open('tmpdir/foo/bar/file.txt', 'w') {}
 		File.open('tmpdir/foo/bar/file.xml', 'w') {}
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use Prompt IN=>DATA, completion_limit=>1;
-				my $f = Prompt::file("> ");
+				use CommandLine::Prompt IN=>DATA, completion_limit=>1;
+				my $f = CommandLine::Prompt::file("> ");
 				print "GOT $f\n";
 				__DATA__
 				tmpdir/		yo			yt	
@@ -150,10 +150,10 @@ class TestPrompt < Test::Unit::TestCase
 		File.open('tmpdir/file.txt', 'w') {}
 		File.open('tmpdir/foo/back.txt', 'w') {}
 
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use Prompt IN=>DATA;
-				my $f = Prompt::directory("> ");
+				use CommandLine::Prompt IN=>DATA;
+				my $f = CommandLine::Prompt::directory("> ");
 				print "GOT $f\n";
 				__DATA__
 				tmpdir/		o		

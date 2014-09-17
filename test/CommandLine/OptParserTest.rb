@@ -4,12 +4,12 @@ require 'open3'
 class TestOptParse < Test::Unit::TestCase
 
 	def testDefault
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-h', '--help', 'display help', \\$help);
 					on('-v', '--version', 'display version', \\$version);
 				};
@@ -38,12 +38,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testOption
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -hv") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist - -hv") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-h', '--help', 'display help', \\$help);
 					on('-v', '--version', 'display version', \\$version);
 				};
@@ -62,12 +62,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testUnknownOption
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -q") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist - -q") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-h', '--help', 'display help', \\$help);
 					on('-v', '--version', 'display version', \\$version);
 				};
@@ -83,12 +83,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testShortOnly
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-h', '--help', 'display help', \\$help);
 					on('-v', 'display version', \\$version);
 				};
@@ -117,12 +117,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testLongOnly
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-h', '--help', 'display help', \\$help);
 					on('--version', 'display version', \\$version);
 				};
@@ -151,12 +151,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testValues
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-i', '--input FILE', 'input file', \\$in);
 					on('-o', '--output=FILE', 'output file', \\$out);
 					on('-dDIR', '--directory', 'directory', \\$dir);
@@ -187,12 +187,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testValuesOptions
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -iinput.txt --output=output.txt -d dir") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist - -iinput.txt --output=output.txt -d dir") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-i', '--input FILE', 'input file', \\$in);
 					on('-o', '--output=FILE', 'output file', \\$out);
 					on('-dDIR', '--directory', 'directory', \\$dir);
@@ -211,12 +211,12 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testLeftovers
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist - -iinput.txt foo bar wow") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist - -iinput.txt foo bar wow") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-i', '--input FILE', 'input file', \\$in);
 				};
 				my @args = $opts->(@ARGV);
@@ -233,13 +233,13 @@ class TestOptParse < Test::Unit::TestCase
 	end 
 
 	def testDescription
-		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../dist -") {|stdin,stdout,stderr,th|
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
 			stdin.puts left_chomp(<<-END)
-				use OptParse
+				use CommandLine::OptParse
 					prog => 'testprog',
 					banner => 'A Test Program',
 					description => 'This is my test program description. It is cool. There are lots of things this program can do.';
-				my $opts = OptParse::options {
+				my $opts = CommandLine::OptParse::options {
 					on('-h', '--help', 'display help', \\$help);
 					on('-v', '--version', 'display version', \\$version);
 				};

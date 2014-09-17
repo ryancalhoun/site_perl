@@ -1,41 +1,41 @@
-package Terminal;
+package CommandLine::Terminal;
 
 use strict;
 use warnings;
 
 =head1 NAME
 
-  Terminal - handle input mode and character reading
+  CommandLine::Terminal - handle input mode and character reading
 
 =head1 SYNOPSIS
 
-  use Terminal;
+  use CommandLine::Terminal;
 
-  Terminal::raw();
-  my $ch = Terminal::getchar();
-  Terminal::normal();
+  CommandLine::Terminal::raw();
+  my $ch = CommandLine::Terminal::getchar();
+  CommandLine::Terminal::normal();
 
 =head1 METHODS
 
 =over 4
 
-=item Terminal::getchar
+=item CommandLine::Terminal::getchar
 
 Get a single character from the terminal's input.
 
-=item Terminal::raw
+=item CommandLine::Terminal::raw
 
 Put the terminal's input into raw mode with echo off.
 
-=item Terminal::normal
+=item CommandLine::Terminal::normal
 
 Restore cooked mode and echo.
 
-=item Terminal::width
+=item CommandLine::Terminal::width
 
 Get the with (number of columns) of the terminal.
 
-=item Terminal::supports_raw
+=item CommandLine::Terminal::supports_raw
 
 True if the Term::ReadKey package is available, or if the terminal represents a tty and /bin/stty is available.
 

@@ -1,35 +1,35 @@
-package Prompt;
+package CommandLine::Prompt;
 
 use strict;
 use warnings;
 
 =head1 NAME
 
-  Prompt - manage a variety of user prompt scenarios
+  CommandLine::Prompt - manage a variety of user prompt scenarios
 
 =head1 SYNOPSIS
 
-  use Prompt;
+  use CommandLine::Prompt;
 
-  my $name = Prompt::string("Name: ");
-  my $age = Prompt::string("Age: ", qr/^\d+/);
-  my $image = Prompt::file("Selfie: ");
+  my $name = CommandLine::Prompt::string("Name: ");
+  my $age = CommandLine::Prompt::string("Age: ", qr/^\d+/);
+  my $image = CommandLine::Prompt::file("Selfie: ");
 
 =head1 METHODS
 
 =over 4
 
-=item Prompt::string $prompt_text, $pattern
+=item CommandLine::Prompt::string $prompt_text, $pattern
 
 Display prompt text and return result. If $pattern is given, the response must match it, or
 the prompt will loop until satisfied.
 
-=item Prompt::file $prompt_text
+=item CommandLine::Prompt::file $prompt_text
 
 Display prompt text and return a valid filename. If the input handle (STDIN) can be put into raw mode,
 provide a tab-complete semantic to navigate existing filenames.
 
-=item Prompt::directory $prompt_text
+=item CommandLine::Prompt::directory $prompt_text
 
 Display prompt text and return a valid directory name. If the input handle (STDIN) can be put into raw mode,
 provide a tab-complete. Non-directories are filtered out of tab-complete candidates.
@@ -59,10 +59,10 @@ sub import
 	my $handle = (split(/::/, $IN))[-1];
 	*{$handle} = $IN;
 
-	require Terminal;
-	Terminal->import(IN=>$handle);
+	require CommandLine::Terminal;
+	CommandLine::Terminal->import(IN=>$handle);
 
-	*complete_file = Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
+	*complete_file = CommandLine::Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
 }
 
 sub string
@@ -121,7 +121,7 @@ sub complete_file_term
 	{
 		my @f = map { -d $_ ? basename($_) . '/' : basename($_) } @candidates;
 
-		my $termwidth = Terminal::width();
+		my $termwidth = CommandLine::Terminal::width();
 		my $textwidth = (List::Util::max map { length($_) } @f) + 4;
 
 		my $cols = int($termwidth / $textwidth) || 1;
@@ -230,16 +230,16 @@ sub complete_file_term
 
 	$readchar = $readpath;
 
-	Terminal::raw();
+	CommandLine::Terminal::raw();
 	eval
 	{
 		while(1)
 		{
-			my $c = Terminal::getchar();
+			my $c = CommandLine::Terminal::getchar();
 			last unless ord($c) and $readchar->($c);
 		}
 	};
-	Terminal::normal();
+	CommandLine::Terminal::normal();
 
 	print "\n";
 

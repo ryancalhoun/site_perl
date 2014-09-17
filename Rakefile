@@ -14,7 +14,7 @@ task :build do
 	}
 
 	mkdir_p 'dist'
-	Dir['src/**'].each {|f|
+	Dir['src/**/*'].each {|f|
 		next if File.directory?(f)
 		File.open(f) {|fin|
 			out = File.join('dist', f[4..-1])
@@ -37,7 +37,8 @@ end
 
 desc 'Run tests'
 Rake::TestTask.new {|t|
-	t.libs << 'test'
+	t.test_files = FileList['test/**/*est.rb']
+	t.verbose = true
 }
 
 task :all => [:clean, :build, :test]

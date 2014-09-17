@@ -1,21 +1,21 @@
-package OptParse;
+package CommandLine::OptParse;
 use strict;
 use warnings;
 
 =head1 NAME
 
-  OptParse - a command-line option parser that produces its own help text
+  CommandLine::OptParse - a command-line option parser that produces its own help text
 
 =head1 SYNOPSIS
 
-  use OptParse
+  use CommandLine::OptParse
       prog => 'myprogram',
       banner => 'A Sample Program';
 
   my $help;
   my $version;
   my $file;
-  my $opts = OptParse::options {
+  my $opts = CommandLine::OptParse::options {
     on('-h', '--help', "Display help", \$help);
     on('-v', '--version', "Display version", \$version);
     on('-f', '--file FILE', "Input file", \$file);
@@ -28,7 +28,7 @@ use warnings;
 
 =over 4
 
-=item OptParse::options $code_block
+=item CommandLine::OptParse::options $code_block
 
 Create an option parser based on the given $code_block. The $code_block should call the method on() with the
 short and long option names including a value label if any, the option description text, and a $ref to
@@ -172,10 +172,10 @@ sub options(&)
 		@ARGV;
 	};
 
-	my $package = "OptParse::$fn";
+	my $package = "CommandLine::OptParse::$fn";
 
 	no strict 'refs';
-	@{$package . '::ISA'} = qw/OptParse/;
+	@{$package . '::ISA'} = qw/CommandLine::OptParse/;
 	*{$package . '::_getmessage'} = sub { $usagemsg };
 	bless $fn, $package;
 }
