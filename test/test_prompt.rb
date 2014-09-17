@@ -101,6 +101,47 @@ class TestPrompt < Test::Unit::TestCase
 		FileUtils.rm_rf 'tmpdir'
 	end
 
+	def testFileTabLimit
+
+		FileUtils.mkdir_p 'tmpdir/foo/bar'
+		FileUtils.mkdir_p 'tmpdir/fun'
+
+		File.open('tmpdir/foo/bar/file.txt', 'w') {}
+		File.open('tmpdir/foo/bar/file.xml', 'w') {}
+
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+			stdin.puts left_chomp(<<-END)
+				use Prompt IN=>DATA, completion_limit=>1;
+				my $f = Prompt::file("> ");
+				print "GOT $f\n";
+				__DATA__
+				tmpdir/		yo			yt	
+	
+			END
+			stdin.close
+
+			STDERR.write stderr.read
+
+			stdout.read
+		}
+
+		expected = left_chomp(<<-END)
+			> tmpdir/f
+			Display all 2 possibilities? (y or n)
+			foo/    fun/    
+			> tmpdir/foo/bar/
+			Display all 2 possibilities? (y or n)
+			file.txt    file.xml    
+			> tmpdir/foo/bar/file.txt 
+			GOT tmpdir/foo/bar/file.txt
+		END
+
+		assert_equal expected, out
+
+	ensure
+		FileUtils.rm_rf 'tmpdir'
+	end
+
 	def left_chomp(str)
 		ws = /^\s+/.match(str)
 		str.each_line.collect {|line|

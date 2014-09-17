@@ -7,7 +7,9 @@ use List::Util;
 use File::Basename;
 
 our $IN = *STDIN;
-our $stty = 0;
+our $completion_limit = 100;
+
+my $stty = 0;
 
 BEGIN
 {
@@ -50,6 +52,7 @@ sub import
 
 	no strict 'refs';
 	$IN = *{$caller . '::' . $_} for grep { defined } $cfg{IN};
+	$completion_limit = $_ for grep { defined } $cfg{completion_limit};
 
 	*complete_file = \&complete_file_basic if $stty and ! -t $IN;
 }
@@ -163,7 +166,7 @@ sub complete_file_term
 				{
 					if($prev eq "\t")
 					{
-						if(scalar @candidates > 100)
+						if(scalar @candidates > $completion_limit)
 						{
 							print "\nDisplay all ", scalar @candidates, " possibilities? (y or n)";
 							$readchar = $read_yn;
