@@ -1,32 +1,116 @@
-package prompt;
+package Prompt;
 
 use strict;
 use warnings;
 
-use Term::ReadKey;
 use List::Util;
 use File::Basename;
 
-sub file
+our $IN = *STDIN;
+our $stty = 0;
+
+BEGIN
 {
-	my $p = shift;
+	eval { require Term::ReadKey };
+
+	if(not $@)
+	{
+		*complete_file = \&complete_file_term;
+		*term_raw = sub { Term::ReadKey::ReadMode(4, $IN) };
+		*term_normal = sub { Term::ReadKey::ReadMode(1, $IN) };
+		*term_getc = sub { Term::ReadKey::ReadKey(0, $IN) };
+		*term_width = sub { (Term::ReadKey::GetTerminalSize(0, $IN))[0] };
+	}
+	elsif(-x '/bin/stty')
+	{
+		$stty = 1;
+		*complete_file = \&complete_file_term;
+		*term_raw = sub { system "stty raw icrnl opost -echo" };
+		*term_normal = sub { system "stty cooked echo" };
+		*term_getc = sub { getc };
+		*term_width = sub {
+			open my $s, "stty size|cut -d' ' -f2|";
+			chomp(my $w = <$s>);
+			close $s;
+			return $w;
+		};
+	}
+	else
+	{
+		*complete_file = \&complete_file_basic;
+	}
+}
+
+sub import
+{
+	my $pkg = shift;
+	my %cfg = @_;
+
+	my $caller = (caller)[0];
+
+	no strict 'refs';
+	$IN = *{$caller . '::' . $_} for grep { defined } $cfg{IN};
+
+	*complete_file = \&complete_file_basic if $stty and ! -t $IN;
+}
+
+sub string
+{
+	my ($p,$exp) = @_;
 
 	print $p;
+	my $value;
+	while(1)
+	{
+		chomp($value = <$IN>);
+		if($value and $exp and $value !~ $exp)
+		{
+			print "Not understood, try again: ";
+			next;
+		}
+		last;
+	}
+	$value;
+}
+
+sub file
+{
+	my $f = complete_file(@_);
+}
+
+sub directory
+{
+	my $f = complete_file(@_);
+}
+
+sub complete_file_basic
+{
+	chomp(my $value = <$IN>);
+	return $value;
+}
+
+sub complete_file_term
+{
+	my $p = shift;
+	print $p;
+
 	my $line = '';
 	my $value = '';
 	my $prev = '';
 	my @candidates;
 
 	my $readchar;
+	my $readpath;
+	my $read_yn;
 
 	my $showall = sub
 	{
 		my @f = map { -d $_ ? basename($_) . '/' : basename($_) } @candidates;
 
-		my ($termwidth) = Term::ReadKey::GetTerminalSize();
+		my $termwidth = term_width();
 		my $textwidth = (List::Util::max map { length($_) } @f) + 4;
 
-		my $cols = int($termwidth / $textwidth);
+		my $cols = int($termwidth / $textwidth) || 1;
 		my $colwidth = int($termwidth / $cols);
 
 		print "\n";
@@ -40,7 +124,7 @@ sub file
 		print "\n" if(scalar @f % $cols != 0);
 	};
 
-	my $readpath = sub
+	$readpath = sub
 	{
 		my $c = shift;
 		if($c eq "\n")
@@ -82,7 +166,7 @@ sub file
 						if(scalar @candidates > 100)
 						{
 							print "\nDisplay all ", scalar @candidates, " possibilities? (y or n)";
-							$readchar = \&read_yn;
+							$readchar = $read_yn;
 						}
 						else
 						{
@@ -109,7 +193,7 @@ sub file
 		return 1;
 	};
 
-	my $read_yn = sub
+	$read_yn = sub
 	{
 		my $c = shift;
 		if($c eq 'y' or $c eq ' ')
@@ -132,16 +216,16 @@ sub file
 
 	$readchar = $readpath;
 
-	Term::ReadKey::ReadMode(4);
+	term_raw();
 	eval
 	{
 		while(1)
 		{
-			my $c = Term::ReadKey::ReadKey(0);
-			last unless $readchar->($c);
+			my $c = term_getc();
+			last unless ord($c) and $readchar->($c);
 		}
 	};
-	Term::ReadKey::ReadMode(1);
+	term_normal();
 
 	print "\n";
 
