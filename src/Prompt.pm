@@ -3,6 +3,41 @@ package Prompt;
 use strict;
 use warnings;
 
+=head1 NAME
+
+  Prompt - manage a variety of user prompt scenarios
+
+=head1 SYNOPSIS
+
+  use Prompt;
+
+  my $name = Prompt::string("Name: ");
+  my $age = Prompt::string("Age: ", qr/^\d+/);
+  my $image = Prompt::file("Selfie: ");
+
+=head1 METHODS
+
+=over 4
+
+=item Prompt::string $prompt_text, $pattern
+
+Display prompt text and return result. If $pattern is given, the response must match it, or
+the prompt will loop until satisfied.
+
+=item Prompt::file $prompt_text
+
+Display prompt text and return a valid filename. If the package Term::ReadKey (or the fallback /bin/stty) is available,
+provide a tab-complete semantic to navigate existing filenames.
+
+=item Prompt::directory $prompt_text
+
+Display prompt text and return a valid directory name. If the package Term::ReadKey (or the fallback /bin/stty) is available,
+provide a tab-complete.
+
+=back
+
+=cut
+
 use List::Util;
 use File::Basename;
 
