@@ -11,14 +11,11 @@ use Pod::Usage;
 our $prog = basename($0, '.pl');
 our $banner;
 our $description;
-our $caller;
 
 sub import
 {
 	my $pkg = shift;
 	my %cfg = @_;
-
-	$caller = (caller)[0];
 
 	$prog            = $_ for grep { defined } $cfg{prog};
 	$banner          = $_ for grep { defined } $cfg{banner};
@@ -44,7 +41,10 @@ sub options(&)
 	my @help;
 	my %opts;
 
+
 	{
+		my $caller = (caller)[0];
+
 		no strict 'refs';
 		local *{"${caller}::on"} = sub
 		{
