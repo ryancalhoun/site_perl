@@ -2,6 +2,58 @@ package OptParse;
 use strict;
 use warnings;
 
+=head1 NAME
+
+  OptParse - a command-line option parser that produces its own help text
+
+=head1 SYNOPSIS
+
+  use OptParse
+      prog => 'myprogram',
+      banner => 'A Sample Program';
+
+  my $help;
+  my $version;
+  my $file;
+  my $opts = OptParse::options {
+    on('-h', '--help', "Display help", \$help);
+    on('-v', '--version', "Display version", \$version);
+    on('-f', '--file FILE', "Input file", \$file);
+  };
+
+  my @args = $opts->(@ARGV);
+  print "$opts" and exit if $help;
+
+=head1 METHODS
+
+=over 4
+
+=item OptParse::options $code_block
+
+Create an option parser based on the given $code_block. The $code_block should call the method on() with the
+short and long option names including a value label if any, the option description text, and a $ref to
+receive the option value.
+
+The returned value is a subroutine ref, which takes the argument array (@ARGV or another) as its parameter list, and
+returns the arguments remaining after parsing out options and values. This subroutine does not return if there is a
+parsing error.
+
+The subroutine ref is also stringifiable as the program's help text.
+
+=item $code_block::on [$short] [$long] [$description] $ref
+
+Option names, $short and $long, are each optional, but at least one must be given. The union of the option names
+is passed to Getopt::Long::GetOptions() as the option specification (e.g. '-h' and '--help' together become 'h|help').
+If either the $short or $long name includes a value label, it is appended to the specification as '=s'.
+
+The $ref is passed to Getopt::Long::GetOptions(), and can be a scalar ref, hash ref, list ref, or subroutine.
+
+Nothing is returned.
+
+=back
+
+=cut
+
 use overload '""' => \&formatusage;
 
 use Getopt::Long qw(:config bundling);
