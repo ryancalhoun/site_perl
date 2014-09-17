@@ -142,6 +142,44 @@ class TestPrompt < Test::Unit::TestCase
 		FileUtils.rm_rf 'tmpdir'
 	end
 
+	def testDirectoryTab
+
+		FileUtils.mkdir_p 'tmpdir/foo/bar'
+		FileUtils.mkdir_p 'tmpdir/fun'
+
+		File.open('tmpdir/file.txt', 'w') {}
+		File.open('tmpdir/foo/back.txt', 'w') {}
+
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../src -") {|stdin,stdout,stderr,th|
+			stdin.puts left_chomp(<<-END)
+				use Prompt IN=>DATA;
+				my $f = Prompt::directory("> ");
+				print "GOT $f\n";
+				__DATA__
+				tmpdir/		o		
+	
+			END
+			stdin.close
+
+			STDERR.write stderr.read
+
+			stdout.read
+		}
+
+		expected = left_chomp(<<-END)
+			> tmpdir/f
+			foo/    fun/    
+			> tmpdir/foo/bar/
+			GOT tmpdir/foo/bar/
+		END
+
+		assert_equal expected, out
+
+	ensure
+		FileUtils.rm_rf 'tmpdir'
+	end
+
+
 	def left_chomp(str)
 		ws = /^\s+/.match(str)
 		str.each_line.collect {|line|
