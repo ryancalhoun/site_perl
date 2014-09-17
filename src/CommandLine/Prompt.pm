@@ -40,6 +40,7 @@ provide a tab-complete. Non-directories are filtered out of tab-complete candida
 
 use List::Util;
 use File::Basename;
+use String::Util;
 
 our $IN = *STDIN;
 our $completion_limit = 100;
@@ -162,7 +163,7 @@ sub complete_file_term
 
 			if(@candidates)
 			{
-				my $prefix = common_prefix(@candidates);
+				my $prefix = String::Util::longest_common_prefix(@candidates);
 				my $remainder = substr($prefix, length $line);
 				$value = $line = $prefix;
 
@@ -247,11 +248,5 @@ sub complete_file_term
 	return $value;
 }
 
-sub common_prefix
-{
-	my $p = shift;
-	for(@_) { chop $p while(!/^\Q$p\E/); }
-	$p;
-}
 
 1
