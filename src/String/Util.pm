@@ -15,7 +15,7 @@ use warnings;
 
 =head1 METHODS
 
-=over4
+=over 4
 
 =item String::Util::longest_common_prefix @candidates
 
