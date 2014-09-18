@@ -112,7 +112,11 @@ sub getline_term
 		while(1)
 		{
 			my $c = CommandLine::Terminal::getchar();
-			if(ord($c) == 0 or ord($c) == 3 or ord($c) == 4)
+
+			die "error: reached end of input$/" if ord($c) == 0;
+			die "<Ctrl+C>$/" if ord($c) == 3;
+
+			if(ord($c) == 4)
 			{
 				undef $value;
 				last;
@@ -123,7 +127,7 @@ sub getline_term
 			}
 			elsif(ord($c) == 8 or ord($c) == 127)
 			{
-				print "\b \b";
+				print "\b \b" if($value);
 				chop $value;
 			}
 			elsif($c =~ /[[:print:]]/)
@@ -192,14 +196,20 @@ sub complete_file_term
 		{
 			return 0;
 		}
-		elsif(ord($c) == 3 or ord($c) == 4)
+		elsif(ord($c) == 3)
+		{
+			die "<Ctrl+C>$/" unless $value;
+			undef $value;
+			return 0;
+		}
+		elsif(ord($c) == 4)
 		{
 			undef $value;
 			return 0;
 		}
 		elsif(ord($c) == 8 or ord($c) == 127)
 		{
-			print "\b \b";
+			print "\b \b" if $value;
 			chop $value if $value eq $line;
 			chop $line;
 		}
@@ -283,7 +293,9 @@ sub complete_file_term
 		while(1)
 		{
 			my $c = CommandLine::Terminal::getchar();
-			last unless ord($c) and $readchar->($c);
+			die "error: reached end of input$/" if ord($c) == 0;
+
+			last unless $readchar->($c);
 		}
 	};
 	CommandLine::Terminal::normal();
