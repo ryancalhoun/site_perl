@@ -63,15 +63,22 @@ use Pod::Usage;
 our $prog = basename($0, '.pl');
 our $banner;
 our $description;
+our @usage = ('[options]');
 
 sub import
 {
 	my $pkg = shift;
 	my %cfg = @_;
 
+	my $array = sub {
+		return @{$_[0]} if ref($_[0]) eq 'ARRAY';
+		return $_[0];
+	};
+
 	$prog            = $_ for grep { defined } $cfg{prog};
 	$banner          = $_ for grep { defined } $cfg{banner};
 	$description     = $_ for grep { defined } $cfg{description};
+	@usage           = $array->($_) for grep { defined } $cfg{usage};
 }
 
 sub formatusage
@@ -112,7 +119,7 @@ sub options(&)
 			elsif($_[0] =~ /^-/)
 			{
 				$short = shift;
-				$long = shift if $_[0] =~ /^--/;
+				$long = shift if @_ and $_[0] =~ /^--/;
 			}
 			else
 			{
@@ -156,11 +163,14 @@ sub options(&)
 		$block->();
 	}
 
-	my $usagemsg = join($/,
-		join("$/$/", '=head1 NAME', $prog . ' - ' . ($banner || ''), '=head1 SYNOPSIS', ''),
-		sprintf("%s [options]$/", $prog),
+	my $usagemsg = join("$/",
+		join("$/$/", '=head1 NAME', " $prog - " . ($banner || ''), '=head1 SYNOPSIS', ''),
+		map(+(" $prog $_"), @usage),
+		'',
 		@help, '', ''
 	);
+	#$usagemsg = "$a$/$b$/  $c$/$/";
+	#print "MSG $usagemsg";
 	$usagemsg .= "=head1 DESCRIPTION$/$/$description" if $description;
 
 	my $fn = sub {

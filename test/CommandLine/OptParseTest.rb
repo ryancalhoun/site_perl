@@ -24,10 +24,10 @@ class OptParseTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			NAME
-			    testprog - A Test Program
+			     testprog - A Test Program
 
 			SYNOPSIS
-			    testprog [options]
+			     testprog [options]
 
 			     -h --help                   display help
 			     -v --version                display version
@@ -103,10 +103,10 @@ class OptParseTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			NAME
-			    testprog - A Test Program
+			     testprog - A Test Program
 
 			SYNOPSIS
-			    testprog [options]
+			     testprog [options]
 
 			     -h --help                   display help
 			     -v                          display version
@@ -137,10 +137,10 @@ class OptParseTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			NAME
-			    testprog - A Test Program
+			     testprog - A Test Program
 
 			SYNOPSIS
-			    testprog [options]
+			     testprog [options]
 
 			     -h --help                   display help
 			        --version                display version
@@ -172,10 +172,10 @@ class OptParseTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			NAME
-			    testprog - A Test Program
+			     testprog - A Test Program
 
 			SYNOPSIS
-			    testprog [options]
+			     testprog [options]
 
 			     -i --input FILE             input file
 			     -o --output FILE            output file
@@ -254,10 +254,10 @@ class OptParseTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			NAME
-			    testprog - A Test Program
+			     testprog - A Test Program
 
 			SYNOPSIS
-			    testprog [options]
+			     testprog [options]
 
 			     -h --help                   display help
 			     -v --version                display version
@@ -265,6 +265,42 @@ class OptParseTest < Test::Unit::TestCase
 			DESCRIPTION
 			    This is my test program description. It is cool. There are lots of
 			    things this program can do.
+
+		END
+		assert_equal expected, out
+
+	end 
+
+	def testUsage
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
+			stdin.puts left_chomp(<<-END)
+				use CommandLine::OptParse
+					prog => 'testprog',
+					banner => 'A Test Program',
+					usage => ['[options] FILE...', 'foo [-c|-w]'];
+				my $opts = CommandLine::OptParse::options {
+					on('-h', '--help', 'display help', \\$help);
+					on('-v', '--version', 'display version', \\$version);
+				};
+				print "$opts";
+			END
+			stdin.close
+
+			STDERR.write stderr.read
+
+			stdout.read
+		}
+
+		expected = left_chomp(<<-END)
+			NAME
+			     testprog - A Test Program
+
+			SYNOPSIS
+			     testprog [options] FILE...
+			     testprog foo [-c|-w]
+
+			     -h --help                   display help
+			     -v --version                display version
 
 		END
 		assert_equal expected, out
