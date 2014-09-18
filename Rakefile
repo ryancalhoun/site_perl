@@ -1,8 +1,10 @@
 require 'rake/testtask'
 
+dist = ENV['dist'] || 'dist'
+
 desc 'Remove build artifacts'
 task :clean do
-	rm_rf 'dist'
+	rm_rf dist
 end
 
 desc 'Build sources'
@@ -13,11 +15,11 @@ task :build do
 		}]
 	}
 
-	mkdir_p 'dist'
+	mkdir_p dist
 	Dir['src/**/*'].each {|f|
 		next if File.directory?(f)
 		File.open(f) {|fin|
-			out = File.join('dist', f[4..-1])
+			out = File.join(dist, f[4..-1])
 			mkdir_p File.dirname(out)
 			File.open(out, 'w') {|fout|
 				fin.each_line {|line|
