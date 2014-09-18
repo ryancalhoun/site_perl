@@ -87,7 +87,7 @@ sub import
 		*getchar = sub { Term::ReadKey::ReadKey(0, $IN) };
 		*raw = sub { Term::ReadKey::ReadMode(4, $IN) };
 		*normal = sub { Term::ReadKey::ReadMode(1, $IN) };
-		*width = sub { (Term::ReadKey::GetTerminalSize(0, $IN))[0] };
+		*width = sub { (Term::ReadKey::GetTerminalSize(0, $IN))[0] || 80 };
 
 		$ReadKey = 1;
 	}

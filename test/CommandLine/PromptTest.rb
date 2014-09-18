@@ -90,12 +90,12 @@ class PromptTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			> tmpdir/foo/bar/
-			file.txt    file.xml    
+			file.txt\\s+file.xml\\s+
 			> tmpdir/foo/bar/file.txt 
 			GOT tmpdir/foo/bar/file.txt
 		END
 
-		assert_equal expected, out
+		assert_match /#{expected}/, out
 
 	ensure
 		FileUtils.rm_rf 'tmpdir'
@@ -127,16 +127,16 @@ class PromptTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			> tmpdir/f
-			Display all 2 possibilities? (y or n)
-			foo/    fun/    
+			Display all 2 possibilities\\? \\(y or n\\)
+			foo/\\s+fun/\\s+
 			> tmpdir/foo/bar/
-			Display all 2 possibilities? (y or n)
-			file.txt    file.xml    
+			Display all 2 possibilities\\? \\(y or n\\)
+			file.txt\\s+file.xml\\s+
 			> tmpdir/foo/bar/file.txt 
 			GOT tmpdir/foo/bar/file.txt
 		END
 
-		assert_equal expected, out
+		assert_match /#{expected}/, out
 
 	ensure
 		FileUtils.rm_rf 'tmpdir'
@@ -168,12 +168,12 @@ class PromptTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			> tmpdir/f
-			foo/    fun/    
+			foo/\\s+fun/\\s+
 			> tmpdir/foo/bar/
 			GOT tmpdir/foo/bar/
 		END
 
-		assert_equal expected, out
+		assert_match /#{expected}/, out
 
 	ensure
 		FileUtils.rm_rf 'tmpdir'
