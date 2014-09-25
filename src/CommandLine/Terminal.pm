@@ -43,6 +43,8 @@ True if the Term::ReadKey package is available, or if the terminal represents a 
 
 =cut
 
+use Time::HiRes;
+
 our $IN = *STDIN;
 our $ReadKey = 0;
 our $STTY = 0;
@@ -60,7 +62,33 @@ sub import
 
 	if($@)
 	{
-		*getchar = sub { getc $IN };
+		*getchar = sub {
+			my ($time) = @_;
+
+			my $ch;
+
+			eval
+			{
+				local $SIG{ALRM} = sub { die "ALRM" };
+				if($time)
+				{
+					Time::HiRes::ualarm(int($time * 1000000));
+				}
+
+				$ch = getc $IN;
+
+				if($time)
+				{
+					Time::HiRes::ualarm(0);
+				}
+			};
+			if($@)
+			{
+				die $@ unless $@ =~ /^ALRM/;
+			}
+
+			$ch;
+		};
 
 		if(-t $IN)
 		{
@@ -84,7 +112,7 @@ sub import
 	}
 	else
 	{
-		*getchar = sub { Term::ReadKey::ReadKey(0, $IN) };
+		*getchar = sub { Term::ReadKey::ReadKey($_[0] || 0, $IN) };
 		*raw = sub { Term::ReadKey::ReadMode(4, $IN) };
 		*normal = sub { Term::ReadKey::ReadMode(1, $IN) };
 		*width = sub { eval { (Term::ReadKey::GetTerminalSize(0, $IN))[0] } || 80 };
