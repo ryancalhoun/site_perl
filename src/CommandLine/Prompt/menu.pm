@@ -392,7 +392,25 @@ sub _menu_term_impl
 
 	die $@ if $@;
 
-	my @result = map { _name($get_value->(split /,/)); } grep { $value{$_} } keys %value;
+	my @result = map { _name($get_value->(split /,/)); } sort {
+		my @ai = split /,/, $a;
+		my @bi = split /,/, $b;
+
+		my $len = $#ai;
+		$len = $#bi if $#bi > $#ai;
+
+		for(0..$len)
+		{
+			return -1 if $#ai < $len;
+			return 1 if $#bi < $len;
+
+			my $c = $ai[$_] <=> $bi[$_];
+			return $c unless $c == 0;
+		}
+
+		return 0;
+
+	} grep { $value{$_} } keys %value;
 	$multi ? @result : $result[0];
 }
 
