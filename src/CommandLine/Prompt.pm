@@ -106,12 +106,12 @@ sub directory
 require 'CommandLine/Prompt/menu.pm';
 sub menu_basic
 {
-	_menu_basic_impl(@_);
+	_menu_basic_impl(0, @_);
 }
 
 sub menu_term
 {
-	_menu_term_impl(@_);
+	_menu_term_impl(0, @_);
 }
 
 sub getline_basic

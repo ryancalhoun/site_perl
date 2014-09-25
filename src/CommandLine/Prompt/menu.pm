@@ -1,9 +1,14 @@
+sub _name
+{
+	ref($_[0]) eq 'HASH' ? $_[0]->{name} : $_[0];
+};
+
 sub _menu_basic_impl
 {
-	my ($p,@values) = @_;
+	my ($multi,$p,@values) = @_;
 
 	print "$p$/";
-	my $value;
+	my @result;
 	my $label = sub {
 		my $i = shift;
 		if(ref($values[$i]) eq 'HASH')
@@ -18,54 +23,59 @@ sub _menu_basic_impl
 	while(1)
 	{
 		printf "  %2d %s$/", $_+1, $label->($_) for 0..$#values;
-		print "Choose number, or ENTER to skip: ";
-		my $n = getline();
-		last unless defined $n;
+		my $exp;
 
-		if(my ($i,$s) = $n =~ /^(\d+)(\*)?$/)
+		if($multi)
 		{
-			if($i > scalar(@values))
-			{
-				print "Too big, try again: ";
-				next;
-			}
-
-			if($s)
-			{
-				if(ref($values[$i-1]) ne 'HASH')
-				{
-					print "Cannot expand choice $i, try again: ";
-					next;
-				}
-				@values = @{$values[$i-1]->{values}};
-				next;
-			}
-			else
-			{
-				if(ref($values[$i-1]) eq 'HASH')
-				{
-					$value = $values[$i-1]->{name};
-				}
-				else
-				{
-					$value = $values[$i-1];
-				}
-				last;
-			}
+			$exp = qr/^([\d\-,\s]+)$/;
+			print "Enter range (e.g. 1,2,4-6), or type [A]ll, or [n]one: ";
 		}
 		else
 		{
-			print "Not a valid number, try again: ";
+			$exp = qr/^(\d+)(\*)?$/;
+			print "Choose number, or ENTER to skip: ";
+		}
+
+		my $n = getline();
+
+		@result = @values if $multi and $n =~ /^a/i;
+		last if ($multi and (not $n or $n =~ /^(n|a)/i)) or (not $multi and not $n);
+
+		my @m = $n =~ $exp;
+
+		my @nums = map {
+			my ($i,$j) = split /\s*-\s*/;
+			$i-1..($j || $i)-1;
+		} split /\s*,\s*/, $m[0];
+
+		if(my @out = grep { $_ < 0 or $_ > $#values } @nums)
+		{
+			print "'", join(',', map {$_+1} @out), "' is not a valid choice, try again:\n";
 			next;
 		}
+
+		if($m[1])
+		{
+			if(ref($values[$nums[0]]) ne 'HASH')
+			{
+				print "Cannot expand choice $nums[0], try again:\n";
+				next;
+			}
+			@values = @{$values[$i-1]->{values}};
+			next;
+		}
+
+		@result = map { _name($values[$_]); } @nums;
+
+		last;
 	}
 
-	$value;
+	$multi ? @result : $result[0];
 }
 
 sub _menu_term_impl
 {
-	my ($p,@values) = @_;
+	my ($multi,$p,@values) = @_;
 
 	my $rows = 10;
 	my @item = (0);
@@ -74,7 +84,7 @@ sub _menu_term_impl
 
 	my $reset;
 	my $line = '';
-	my $value;
+	my %value;
 
 	my $limit;
 	$limit = sub {
@@ -102,7 +112,7 @@ sub _menu_term_impl
 
 		if($d == 0)
 		{
-			return (sort { $a <=> $b }  map { length(ref($_) eq 'HASH' ? $_->{name} : $_) } @$v)[-1] + 4;
+			return (sort { $a <=> $b }  map { length(_name($_)) } @$v)[-1] + 4;
 		}
 		else
 		{
@@ -135,6 +145,19 @@ sub _menu_term_impl
 		{
 			return $label->($d-1, $i, $v->[$item[$x-$d]]->{values}, $x);
 		}
+	};
+
+	my $get_value;
+	$get_value = sub {
+		my $v = \@values;
+		for(@_)
+		{
+			$v = $v->{values} if ref($v) eq 'HASH';
+			return undef unless ref($v) eq 'ARRAY';
+			$v = $v->[$_];
+		}
+
+		$v;
 	};
 
 	my $selected;
@@ -206,6 +229,7 @@ sub _menu_term_impl
 				if($i >= 0 and $i < $limit->($d))
 				{
 					my $text = $label->($d, $i);
+					$text .= '*' if $value{join(',', @item[0..$d-1], $i)};
 					if($i == $item[$d])
 					{
 						if($d == $depth)
@@ -276,16 +300,33 @@ sub _menu_term_impl
 
 			last if ord($ch) == 3;
 
+			my $key = join(',', @item[0..$depth]);
+
 			if($ch eq "\n")
 			{
-				$value = $selected->();
-				$value = $value->{name} if ref($value) eq 'HASH';
+				$value{$key} = 1 unless $multi;
 				last;
+			}
+			elsif($ch eq " " and $multi)
+			{
+				$value{$key} = not $value{$key};
 			}
 			elsif($ch =~ /q/i)
 			{
 				$item[$depth] = -1;
 				last;
+			}
+			elsif(ord($ch) == 1 and $multi) # Ctrl+A
+			{
+				$value{$_} = 1 for map {
+					join(',', @item[0..$depth-1], $_)
+				} 0..$limit->($depth);
+			}
+			elsif(ord($ch) == 14 and $multi) # Ctrl+N
+			{
+				$value{$_} = 0 for map {
+					join(',', @item[0..$depth-1], $_)
+				} 0..$limit->($depth);
 			}
 			elsif(ord($ch) == 27)
 			{
@@ -351,7 +392,8 @@ sub _menu_term_impl
 
 	die $@ if $@;
 
-	$value;
+	my @result = map { _name($get_value->(split /,/)); } grep { $value{$_} } keys %value;
+	$multi ? @result : $result[0];
 }
 
 1
