@@ -96,6 +96,12 @@ sub directory
 	my $f = complete_file(@_, sub { grep { -d } @_ });
 }
 
+require 'CommandLine/Prompt/menu.pm';
+sub menu
+{
+	_menu_term_impl(@_);
+}
+
 sub getline_basic
 {
 	chomp(my $value = <$IN>);
