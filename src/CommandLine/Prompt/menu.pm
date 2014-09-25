@@ -1,3 +1,67 @@
+sub _menu_basic_impl
+{
+	my ($p,@values) = @_;
+
+	print "$p$/";
+	my $value;
+	my $label = sub {
+		my $i = shift;
+		if(ref($values[$i]) eq 'HASH')
+		{
+			$values[$i]->{name} . " (enter \"" . ($i+1) . "*\" to expand)";
+		}
+		else
+		{
+			$values[$i]
+		}
+	};
+	while(1)
+	{
+		printf "  %2d %s$/", $_+1, $label->($_) for 0..$#values;
+		print "Choose number, or ENTER to skip: ";
+		my $n = getline();
+		last unless defined $n;
+
+		if(my ($i,$s) = $n =~ /^(\d+)(\*)?$/)
+		{
+			if($i > scalar(@values))
+			{
+				print "Too big, try again: ";
+				next;
+			}
+
+			if($s)
+			{
+				if(ref($values[$i-1]) ne 'HASH')
+				{
+					print "Cannot expand choice $i, try again: ";
+					next;
+				}
+				@values = @{$values[$i-1]->{values}};
+				next;
+			}
+			else
+			{
+				if(ref($values[$i-1]) eq 'HASH')
+				{
+					$value = $values[$i-1]->{name};
+				}
+				else
+				{
+					$value = $values[$i-1];
+				}
+				last;
+			}
+		}
+		else
+		{
+			print "Not a valid number, try again: ";
+			next;
+		}
+	}
+
+	$value;
+}
 
 sub _menu_term_impl
 {

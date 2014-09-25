@@ -14,6 +14,7 @@ use warnings;
   my $name = CommandLine::Prompt::string("Name: ");
   my $age = CommandLine::Prompt::string("Age: ", qr/^\d+/);
   my $image = CommandLine::Prompt::file("Selfie: ");
+  my $item = CommandLine::Prompt::menu("Pick: ", "water", "beer");
 
 =head1 METHODS
 
@@ -33,6 +34,11 @@ provide a tab-complete semantic to navigate existing filenames.
 
 Display prompt text and return a valid directory name. If the input handle (STDIN) can be put into raw mode,
 provide a tab-complete. Non-directories are filtered out of tab-complete candidates.
+
+=item CommandLine::Prompt::menu $prompt_text, @values
+
+Display prompt text and numbered menu values. If the input handle (STDIN) can be put into raw mode,
+show a highlighted menu navigable with arrow keys.
 
 =back
 
@@ -65,6 +71,7 @@ sub import
 
 	*complete_file = CommandLine::Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
 	*getline = CommandLine::Terminal::supports_raw() ? \&getline_term : \&getline_basic;
+	*menu = CommandLine::Terminal::supports_raw() ? \&menu_term : \&menu_basic;
 }
 
 sub string
@@ -97,7 +104,12 @@ sub directory
 }
 
 require 'CommandLine/Prompt/menu.pm';
-sub menu
+sub menu_basic
+{
+	_menu_basic_impl(@_);
+}
+
+sub menu_term
 {
 	_menu_term_impl(@_);
 }
