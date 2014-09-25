@@ -127,7 +127,7 @@ sub getline_term
 			}
 			elsif(ord($c) == 8 or ord($c) == 127)
 			{
-				print "\b \b" if($value);
+				print "\b\033[K" if($value);
 				chop $value;
 			}
 			elsif($c =~ /[[:print:]]/)
@@ -209,7 +209,7 @@ sub complete_file_term
 		}
 		elsif(ord($c) == 8 or ord($c) == 127)
 		{
-			print "\b \b" if $value;
+			print "\b\033[K" if $value;
 			chop $value if $value eq $line;
 			chop $line;
 		}
