@@ -78,9 +78,10 @@ sub _menu_term_impl
 
 	my $limit;
 	$limit = sub {
-		my ($d,$v) = @_;
+		my ($d,$v,$x) = @_;
 
 		$v ||= \@values;
+		$x ||= $d;
 
 		if($d == 0)
 		{
@@ -88,15 +89,16 @@ sub _menu_term_impl
 		}
 		else
 		{
-			return $limit->($d-1, $v->[$item[$depth-$d]]->{values});
+			return $limit->($d-1, $v->[$item[$x-$d]]->{values}, $x);
 		}
 	};
 
 	my $width;
 	$width = sub {
-		my ($d,$v) = @_;
+		my ($d,$v,$x) = @_;
 
 		$v ||= \@values;
+		$x ||= $d;
 
 		if($d == 0)
 		{
@@ -104,7 +106,7 @@ sub _menu_term_impl
 		}
 		else
 		{
-			return $width->($d-1, $v->[$item[$depth-$d]]->{values});
+			return $width->($d-1, $v->[$item[$x-$d]]->{values}, $x);
 		}
 	};
 
@@ -120,9 +122,10 @@ sub _menu_term_impl
 
 	my $label;
 	$label = sub {
-		my ($d,$i,$v) = @_;
+		my ($d,$i,$v,$x) = @_;
 
 		$v ||= \@values;
+		$x ||= $d;
 
 		if($d == 0)
 		{
@@ -130,7 +133,7 @@ sub _menu_term_impl
 		}
 		else
 		{
-			return $label->($d-1, $i, $v->[$item[$depth-$d]]->{values});
+			return $label->($d-1, $i, $v->[$item[$x-$d]]->{values}, $x);
 		}
 	};
 
@@ -223,8 +226,6 @@ sub _menu_term_impl
 				{
 					print " " x ($w + 9);
 				}
-
-
 			}
 
 			print "\n";
@@ -233,7 +234,7 @@ sub _menu_term_impl
 		for(0..$depth)
 		{
 			my $w = $width->($_);
-			if($pos[0] + 9 < $limit->($_))
+			if($pos[0] + $rows < $limit->($_))
 			{
 				print "      ...", " " x ($w);
 			}
