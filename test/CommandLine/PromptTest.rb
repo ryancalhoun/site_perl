@@ -213,8 +213,7 @@ class PromptTest < Test::Unit::TestCase
 			\e[K \e[7;1m  3  three        \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D
-			GOT three
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[KGOT three
 		END
 
 		assert_equal expected, out
@@ -269,8 +268,7 @@ class PromptTest < Test::Unit::TestCase
 			\e[K \e[37;40m  3  three ...    \e[0m                  
 			\e[K                                     
 			                                       
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D
-			GOT five
+			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[KGOT five
 		END
 
 		assert_equal expected, out
@@ -321,8 +319,7 @@ class PromptTest < Test::Unit::TestCase
 			\e[K \e[7;1m  3 [three]       \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D
-			GOT two three
+			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[KGOT two three
 		END
 
 		assert_equal expected, out

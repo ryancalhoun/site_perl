@@ -404,7 +404,7 @@ sub _menu_term_impl
 	};
 	CommandLine::Terminal::normal();
 
-	print "\n";
+	print "\033[K";
 
 	die $@ if $@;
 
