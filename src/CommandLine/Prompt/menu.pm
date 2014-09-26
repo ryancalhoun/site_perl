@@ -349,13 +349,13 @@ sub _menu_term_impl
 			{
 				$value{$_} = 1 for map {
 					join(',', @item[0..$depth-1], $_)
-				} 0..$limit->($depth);
+				} 0..$limit->($depth)-1;
 			}
 			elsif($ch->CTRL_N and $multi)
 			{
 				$value{$_} = 0 for map {
 					join(',', @item[0..$depth-1], $_)
-				} 0..$limit->($depth);
+				} 0..$limit->($depth)-1;
 			}
 			elsif($ch->UP)
 			{
@@ -427,6 +427,7 @@ sub _menu_term_impl
 		return 0;
 
 	} grep { $value{$_} } keys %value;
+
 	$multi ? @result : $result[0];
 }
 

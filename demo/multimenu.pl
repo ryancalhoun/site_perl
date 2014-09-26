@@ -11,4 +11,5 @@ my @values = CommandLine::Prompt::multimenu("Select toppings: ",
 	'Mustard',
 );
 
+print scalar(@values), "\n";
 print "You selected ", join(', ', @values), "\n";
