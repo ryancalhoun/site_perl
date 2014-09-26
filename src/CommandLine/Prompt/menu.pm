@@ -1,3 +1,5 @@
+use strict;
+use warnings;
 use List::Util 'sum';
 
 sub _name
@@ -52,7 +54,7 @@ sub _menu_basic_impl
 
 		if(my @out = grep { $_ < 0 or $_ > $#values } @nums)
 		{
-			print "'", join(',', map {$_+1} @out), "' is not a valid choice, try again:\n";
+			print "'", join(',', map {$_+1} @out), "' is not a valid choice, try again:$/";
 			next;
 		}
 
@@ -60,10 +62,11 @@ sub _menu_basic_impl
 		{
 			if(ref($values[$nums[0]]) ne 'HASH')
 			{
-				print "Cannot expand choice $nums[0], try again:\n";
+				my $i = $nums[0] + 1;
+				print "Cannot expand choice $i, try again:$/";
 				next;
 			}
-			@values = @{$values[$i-1]->{values}};
+			@values = @{$values[$nums[0]]->{values}};
 			next;
 		}
 
@@ -273,7 +276,7 @@ sub _menu_term_impl
 				}
 			}
 
-			print "\n";
+			print $/;
 		}
 
 		for(0..$depth)
@@ -289,7 +292,7 @@ sub _menu_term_impl
 			}
 		}
 
-		print "\n";
+		print $/;
 
 		my $status;
 
@@ -316,7 +319,7 @@ sub _menu_term_impl
 	my $h = $height->();
 	$rows = $h + 1 if($h < $rows);
 
-	print "$p\n";
+	print "$p$/";
 	$display->();
 
 	CommandLine::Terminal::raw();
@@ -326,7 +329,7 @@ sub _menu_term_impl
 		{
 			my $ch = CommandLine::Terminal::getchar();
 
-			last if $ch->CTRL_C;
+			die "<Ctrl+C>$/" if $ch->CTRL_C;
 
 			my $key = join(',', @item[0..$depth]);
 
@@ -405,7 +408,7 @@ sub _menu_term_impl
 	CommandLine::Terminal::normal();
 
 	print "\033[K";
-
+	STDOUT->flush;
 	die $@ if $@;
 
 	my @result = map { _name($get_value->(split /,/)); } sort {
@@ -491,7 +494,7 @@ sub _choice_term_impl
 				print "    $v   ";
 			}
 		}
-		print "\n";
+		print $/;
 	};
 
 	print $p;
