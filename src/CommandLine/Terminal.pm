@@ -43,13 +43,14 @@ True if the Term::ReadKey package is available, or if the terminal represents a 
 
 =cut
 
-use Time::HiRes;
+require IO::Handle;
 
 our $IN = *STDIN;
 our $ReadKey = 0;
 our $STTY = 0;
 
 my $getchar;
+my $getchar_nb;
 
 sub import
 {
@@ -64,30 +65,16 @@ sub import
 
 	if($@)
 	{
-		$getchar = sub {
-			my ($time) = @_;
-
+		require Fcntl;
+		$getchar = sub { getc $IN; };
+		$getchar_nb = sub {
 			my $ch;
+			my $f = fcntl($IN, &Fcntl::F_GETFL, 0);
+			fcntl($IN, &Fcntl::F_SETFL, $f|&Fcntl::O_NONBLOCK);
 
-			eval
-			{
-				local $SIG{ALRM} = sub { die "ALRM" };
-				if($time)
-				{
-					Time::HiRes::ualarm(int($time * 1000000));
-				}
+			$ch = getc $IN;
 
-				$ch = getc $IN;
-
-				if($time)
-				{
-					Time::HiRes::ualarm(0);
-				}
-			};
-			if($@)
-			{
-				die $@ unless $@ =~ /^ALRM/;
-			}
+			fcntl($IN, &Fcntl::F_SETFL, $f);
 
 			$ch;
 		};
@@ -114,7 +101,8 @@ sub import
 	}
 	else
 	{
-		$getchar = sub { Term::ReadKey::ReadKey($_[0] || 0, $IN) };
+		$getchar = sub { Term::ReadKey::ReadKey(0, $IN) };
+		$getchar_nb = sub { Term::ReadKey::ReadKey(-1, $IN) };
 		*raw = sub { Term::ReadKey::ReadMode(4, $IN) };
 		*normal = sub { Term::ReadKey::ReadMode(1, $IN) };
 		*width = sub { eval { (Term::ReadKey::GetTerminalSize(0, $IN))[0] } || 80 };
@@ -125,19 +113,26 @@ sub import
 
 sub getchar
 {
-	my $c = $getchar->(@_);
+	my $c = $getchar->();
 
 	if(ord($c) == 27)
 	{
-		my $k = $getchar->(0.1);
-		if(defined $k and $k eq '[')
+		my $k = $getchar_nb->();
+		if(defined $k)
 		{
-			$c .= $k;
-			do {
-				$k = $getchar->(0.1);
-				last unless defined $k;
+			if($k eq '[')
+			{
 				$c .= $k;
-			} until(ord($k) >= 64 and ord($k) <= 126);
+				do {
+					$k = $getchar_nb->();
+					last unless defined $k;
+					$c .= $k;
+				} until(ord($k) >= 64 and ord($k) <= 126);
+			}
+			else
+			{
+				$IN->ungetc(ord($k));
+			}
 		}
 	}
 
