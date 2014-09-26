@@ -112,7 +112,7 @@ sub _menu_term_impl
 
 		if($d == 0)
 		{
-			return (sort { $a <=> $b }  map { length(_name($_)) } @$v)[-1] + 4;
+			return (sort { $a <=> $b }  map { length(_name($_)) } @$v)[-1] + 6;
 		}
 		else
 		{
@@ -139,7 +139,27 @@ sub _menu_term_impl
 
 		if($d == 0)
 		{
-			return ref($v->[$i]) eq 'HASH' ? $v->[$i]->{name} . " ..." : $v->[$i];
+			my $selected = $value{join(',', @item[0..$x-1], $i)};
+			if(ref($v->[$i]) eq 'HASH')
+			{
+				if($selected)
+				{
+					"[$v->[$i]->{name}]...";
+				}
+				else
+				{
+					" $v->[$i]->{name} ...";
+				}
+
+			}
+			elsif($selected)
+			{
+				"[$v->[$i]]";
+			}
+			else
+			{
+				" $v->[$i]";
+			}
 		}
 		else
 		{
@@ -229,26 +249,25 @@ sub _menu_term_impl
 				if($i >= 0 and $i < $limit->($d))
 				{
 					my $text = $label->($d, $i);
-					$text .= '*' if $value{join(',', @item[0..$d-1], $i)};
 					if($i == $item[$d])
 					{
 						if($d == $depth)
 						{
-							printf " \033[7;1m %2d  %-${w}s   \033[0m", $i + 1, $text;
+							printf " \033[7;1m %2d %-${w}s   \033[0m", $i + 1, $text;
 						}
 						else
 						{
-							printf " \033[37;40m %2d  %-${w}s   \033[0m", $i + 1, $text;
+							printf " \033[37;40m %2d %-${w}s   \033[0m", $i + 1, $text;
 						}
 					}
 					else
 					{
-						printf "  %2d  %-${w}s   ", $i + 1, $text;
+						printf "  %2d %-${w}s   ", $i + 1, $text;
 					}
 				}
 				else
 				{
-					print " " x ($w + 9);
+					print " " x ($w + 8);
 				}
 			}
 
@@ -307,18 +326,15 @@ sub _menu_term_impl
 				$value{$key} = 1 unless $multi;
 				last;
 			}
-			elsif($ch->ESC)
+			elsif($ch->ESC or $ch =~ /q/i)
 			{
+				%value = ();
+				$item[$depth] = -1;
 				last;
 			}
 			elsif($ch eq " " and $multi)
 			{
 				$value{$key} = not $value{$key};
-			}
-			elsif($ch =~ /q/i)
-			{
-				$item[$depth] = -1;
-				last;
 			}
 			elsif($ch->CTRL_A and $multi)
 			{

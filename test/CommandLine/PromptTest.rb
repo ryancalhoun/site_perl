@@ -198,21 +198,21 @@ class PromptTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			> 
-			\e[K \e[7;1m  1  one         \e[0m
-			\e[K   2  two         
-			\e[K   3  three       
-			\e[K                  
-			                  
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one         
-			\e[K \e[7;1m  2  two         \e[0m
-			\e[K   3  three       
-			\e[K                  
-			                  
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one         
-			\e[K   2  two         
-			\e[K \e[7;1m  3  three       \e[0m
-			\e[K                  
-			                  
+			\e[K \e[7;1m  1  one          \e[0m
+			\e[K   2  two          
+			\e[K   3  three        
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K \e[7;1m  2  two          \e[0m
+			\e[K   3  three        
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K   2  two          
+			\e[K \e[7;1m  3  three        \e[0m
+			\e[K                   
+			                    
 			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D
 			GOT three
 		END
@@ -239,42 +239,93 @@ class PromptTest < Test::Unit::TestCase
 
 		expected = left_chomp(<<-END)
 			> 
-			\e[K \e[7;1m  1  one         \e[0m
-			\e[K   2  two         
-			\e[K   3  three ...   
-			\e[K                  
-			                  
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one         
-			\e[K \e[7;1m  2  two         \e[0m
-			\e[K   3  three ...   
-			\e[K                  
-			                  
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one         
-			\e[K   2  two         
-			\e[K \e[7;1m  3  three ...   \e[0m
-			\e[K                  
-			                  
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one         
-			\e[K   2  two         
-			\e[K \e[7;1m  3  three ...   \e[0m
-			\e[K                  
-			                  
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one          \e[7;1m  1  four       \e[0m
-			\e[K   2  two            2  five       
-			\e[K \e[37;40m  3  three ...   \e[0m                 
-			\e[K                                   
-			                                   
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one            1  four       
-			\e[K   2  two          \e[7;1m  2  five       \e[0m
-			\e[K \e[37;40m  3  three ...   \e[0m                 
-			\e[K                                   
-			                                   
+			\e[K \e[7;1m  1  one          \e[0m
+			\e[K   2  two          
+			\e[K   3  three ...    
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K \e[7;1m  2  two          \e[0m
+			\e[K   3  three ...    
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K   2  two          
+			\e[K \e[7;1m  3  three ...    \e[0m
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one          
+			\e[K   2  two          
+			\e[K \e[7;1m  3  three ...    \e[0m
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one           \e[7;1m  1  four        \e[0m
+			\e[K   2  two             2  five        
+			\e[K \e[37;40m  3  three ...    \e[0m                  
+			\e[K                                     
+			                                       
+			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one             1  four        
+			\e[K   2  two           \e[7;1m  2  five        \e[0m
+			\e[K \e[37;40m  3  three ...    \e[0m                  
+			\e[K                                     
+			                                       
 			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D
 			GOT five
 		END
 
 		assert_equal expected, out
 
+	end
+
+	def testMultiMenu
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
+			stdin.puts left_chomp(<<-END)
+				use CommandLine::Prompt IN=>DATA;
+				my @f = CommandLine::Prompt::multimenu("> ", "one", "two", "three");
+				print "GOT @f\n";
+				__DATA__
+				\033[B \033[B 
+	
+			END
+			stdin.close
+
+			STDERR.write stderr.read
+
+			stdout.read
+		}
+
+		expected = left_chomp(<<-END)
+			> 
+			\e[K \e[7;1m  1  one          \e[0m
+			\e[K   2  two          
+			\e[K   3  three        
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K \e[7;1m  2  two          \e[0m
+			\e[K   3  three        
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K \e[7;1m  2 [two]         \e[0m
+			\e[K   3  three        
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K   2 [two]         
+			\e[K \e[7;1m  3  three        \e[0m
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[K   2 [two]         
+			\e[K \e[7;1m  3 [three]       \e[0m
+			\e[K                   
+			                    
+			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D
+			GOT two three
+		END
+
+		assert_equal expected, out
 	end
 
 

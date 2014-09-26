@@ -72,6 +72,7 @@ sub import
 	*complete_file = CommandLine::Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
 	*getline = CommandLine::Terminal::supports_raw() ? \&getline_term : \&getline_basic;
 	*menu = CommandLine::Terminal::supports_raw() ? \&menu_term : \&menu_basic;
+	*multimenu = CommandLine::Terminal::supports_raw() ? \&multimenu_term : \&multimenu_basic;
 }
 
 sub string
@@ -114,6 +115,15 @@ sub menu_term
 	_menu_term_impl(0, @_);
 }
 
+sub multimenu_basic
+{
+	_menu_basic_impl(1, @_);
+}
+
+sub multimenu_term
+{
+	_menu_term_impl(1, @_);
+}
 sub getline_basic
 {
 	chomp(my $value = <$IN>);
