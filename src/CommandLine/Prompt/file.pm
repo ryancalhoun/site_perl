@@ -1,3 +1,5 @@
+use strict;
+use warnings;
 
 sub _complete_file_term_impl
 {
@@ -102,7 +104,7 @@ sub _complete_file_term_impl
 				{
 					if($prev eq "\t")
 					{
-						if(scalar @candidates > $completion_limit)
+						if(scalar @candidates > $CommandLine::Prompt::completion_limit)
 						{
 							print "\nDisplay all ", scalar @candidates, " possibilities? (y or n)";
 							$readchar = $read_yn;

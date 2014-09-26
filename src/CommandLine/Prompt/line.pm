@@ -1,3 +1,5 @@
+use strict;
+use warnings;
 
 sub _getline_term_impl
 {
