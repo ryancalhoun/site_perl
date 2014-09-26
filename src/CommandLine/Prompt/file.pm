@@ -16,6 +16,15 @@ sub _complete_file_term_impl
 	my $readpath;
 	my $read_yn;
 
+	my $reset = "\033[A\n\033[K";
+	my $error = sub
+	{
+		print $reset;
+		$reset = "\033[2A\n\033[K";
+		print "Error: $_[0]\n";
+		print "$p$line";
+	};
+
 	my $showall = sub
 	{
 		my @f = map { -d $_ ? basename($_) . '/' : basename($_) } @candidates;
@@ -42,7 +51,8 @@ sub _complete_file_term_impl
 		my $c = shift;
 		if($c->ENTER)
 		{
-			return 0;
+			return 0 if not $value or -e $value;
+			$error->("no such file or directory");
 		}
 		elsif($c->CTRL_C)
 		{
@@ -50,7 +60,7 @@ sub _complete_file_term_impl
 			undef $value;
 			return 0;
 		}
-		elsif($c->CTRL_D)
+		elsif($c->CTRL_D or $c->ESC)
 		{
 			undef $value;
 			return 0;
@@ -69,6 +79,9 @@ sub _complete_file_term_impl
 			{
 				my $prefix = String::Util::longest_common_prefix(@candidates);
 				my $remainder = substr($prefix, length $line);
+
+				my $update = $value ne substr($prefix, 0, length($value));
+
 				$value = $line = $prefix;
 
 				if(scalar @candidates == 1)
@@ -76,7 +89,14 @@ sub _complete_file_term_impl
 					-f $value
 						and map { $_ .= ' ' } $line, $remainder
 						or map { $_ .= '/' } $value, $line, $remainder;
-					print $remainder;
+					if($update)
+					{
+						print "\033[A\n\033[K$p$line";
+					}
+					else
+					{
+						print $remainder;
+					}
 				}
 				else
 				{
@@ -95,15 +115,32 @@ sub _complete_file_term_impl
 					}
 					else
 					{
-						print "$remainder";
+						if($update)
+						{
+							print "\033[A\n\033[K$p$line";
+						}
+						else
+						{
+							print $remainder;
+						}
 					}
 				}
 			}
 		}
 		elsif($c->CHAR)
 		{
-			print $c;
-			map { $_ .= $c } $line, $value;
+			my $part = "$value$c";
+			$part .= '*' unless $part eq '~';
+
+			if($filter->(glob $part))
+			{
+				print $c;
+				map { $_ .= $c } $line, $value;
+			}
+			else
+			{
+				$error->("no such path \"$value$c\".");
+			}
 		}
 		else
 		{
