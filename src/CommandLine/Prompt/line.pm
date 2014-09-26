@@ -10,24 +10,24 @@ sub _getline_term_impl
 		{
 			my $c = CommandLine::Terminal::getchar();
 
-			die "error: reached end of input$/" if ord($c) == 0;
-			die "<Ctrl+C>$/" if ord($c) == 3;
+			die "error: reached end of input$/" if $c->NUL;
+			die "<Ctrl+C>$/" if $c->CTRL_C;
 
-			if(ord($c) == 4)
+			if($c->CTRL_D or $c->ESC)
 			{
 				undef $value;
 				last;
 			}
-			elsif($c eq "\n")
+			elsif($c->ENTER)
 			{
 				last;
 			}
-			elsif(ord($c) == 8 or ord($c) == 127)
+			elsif($c->BS)
 			{
 				print "\b\033[K" if($value);
 				chop $value;
 			}
-			elsif($c =~ /[[:print:]]/)
+			elsif($c->CHAR)
 			{
 				print $c;
 				$value .= $c;

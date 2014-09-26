@@ -298,13 +298,17 @@ sub _menu_term_impl
 		{
 			my $ch = CommandLine::Terminal::getchar();
 
-			last if ord($ch) == 3;
+			last if $ch->CTRL_C;
 
 			my $key = join(',', @item[0..$depth]);
 
-			if($ch eq "\n")
+			if($ch->ENTER)
 			{
 				$value{$key} = 1 unless $multi;
+				last;
+			}
+			elsif($ch->ESC)
+			{
 				last;
 			}
 			elsif($ch eq " " and $multi)
@@ -316,58 +320,45 @@ sub _menu_term_impl
 				$item[$depth] = -1;
 				last;
 			}
-			elsif(ord($ch) == 1 and $multi) # Ctrl+A
+			elsif($ch->CTRL_A and $multi)
 			{
 				$value{$_} = 1 for map {
 					join(',', @item[0..$depth-1], $_)
 				} 0..$limit->($depth);
 			}
-			elsif(ord($ch) == 14 and $multi) # Ctrl+N
+			elsif($ch->CTRL_N and $multi)
 			{
 				$value{$_} = 0 for map {
 					join(',', @item[0..$depth-1], $_)
 				} 0..$limit->($depth);
 			}
-			elsif(ord($ch) == 27)
+			elsif($ch->UP)
 			{
-				$ch = CommandLine::Terminal::getchar(0.1);
-				unless(defined $ch)
+				if($item[$depth] > 0)
 				{
-					last;
+					--$item[$depth];
 				}
-
-				if(ord($ch) == 91)
+			}
+			elsif($ch->DOWN)
+			{
+				if($item[$depth] < $limit->($depth) - 1)
 				{
-					$ch = CommandLine::Terminal::getchar();
-					if(ord($ch) == 65)
-					{
-						if($item[$depth] > 0)
-						{
-							--$item[$depth];
-						}
-					}
-					elsif(ord($ch) == 66)
-					{
-						if($item[$depth] < $limit->($depth) - 1)
-						{
-							++$item[$depth];
-						}
-					}
-					elsif(ord($ch) == 67)
-					{
-						if(ref($selected->()) eq 'HASH')
-						{
-							++$depth;
-							$line = '';
-						}
-					}
-					elsif(ord($ch) == 68)
-					{
-						if($depth > 0)
-						{
-							$item[$depth--] = 0;
-						}
-					}
+					++$item[$depth];
+				}
+			}
+			elsif($ch->RIGHT)
+			{
+				if(ref($selected->()) eq 'HASH')
+				{
+					++$depth;
+					$line = '';
+				}
+			}
+			elsif($ch->LEFT)
+			{
+				if($depth > 0)
+				{
+					$item[$depth--] = 0;
 				}
 			}
 			elsif($ch =~ /\d/)
@@ -378,7 +369,7 @@ sub _menu_term_impl
 					$item[$depth] = $line - 1;
 				}
 			}
-			elsif(ord($ch) == 8 or ord($ch) == 127)
+			elsif($ch->BS)
 			{
 				chop $line;
 				$item[$depth] = int($line || 0) - 1;

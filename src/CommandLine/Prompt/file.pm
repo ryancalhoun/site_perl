@@ -40,28 +40,28 @@ sub _complete_file_term_impl
 	$readpath = sub
 	{
 		my $c = shift;
-		if($c eq "\n")
+		if($c->ENTER)
 		{
 			return 0;
 		}
-		elsif(ord($c) == 3)
+		elsif($c->CTRL_C)
 		{
 			die "<Ctrl+C>$/" unless $value;
 			undef $value;
 			return 0;
 		}
-		elsif(ord($c) == 4)
+		elsif($c->CTRL_D)
 		{
 			undef $value;
 			return 0;
 		}
-		elsif(ord($c) == 8 or ord($c) == 127)
+		elsif($c->BS)
 		{
 			print "\b\033[K" if $value;
 			chop $value if $value eq $line;
 			chop $line;
 		}
-		elsif($c eq "\t" and not -f $value)
+		elsif($c->TAB and not -f $value)
 		{
 			@candidates = $filter->(glob "$line*");
 
@@ -100,7 +100,7 @@ sub _complete_file_term_impl
 				}
 			}
 		}
-		elsif($c =~ /[[:print:]]/)
+		elsif($c->CHAR)
 		{
 			print $c;
 			map { $_ .= $c } $line, $value;
@@ -141,7 +141,7 @@ sub _complete_file_term_impl
 		while(1)
 		{
 			my $c = CommandLine::Terminal::getchar();
-			die "error: reached end of input$/" if ord($c) == 0;
+			die "error: reached end of input$/" if $c->NUL;
 
 			last unless $readchar->($c);
 		}
