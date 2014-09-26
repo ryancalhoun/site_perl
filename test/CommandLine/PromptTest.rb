@@ -301,28 +301,56 @@ class PromptTest < Test::Unit::TestCase
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2  two          \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2 [two]         \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
 			\e[K   2 [two]         
 			\e[K \e[7;1m  3  three        \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
 			\e[K   2 [two]         
 			\e[K \e[7;1m  3 [three]       \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D
+			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D
 			GOT two three
+		END
+
+		assert_equal expected, out
+	end
+
+	def testChoice
+		out = Open3.popen3("perl -I#{File.dirname(__FILE__)}/../../dist -") {|stdin,stdout,stderr,th|
+			stdin.puts left_chomp(<<-END)
+				use CommandLine::Prompt IN=>DATA;
+				my $f = CommandLine::Prompt::choice("Ready? ", "yes", "no", "maybe");
+				print "GOT $f\n";
+				__DATA__
+				\033[C\033[C 
+	
+			END
+			stdin.close
+
+			STDERR.write stderr.read
+
+			stdout.read
+		}
+
+		expected = left_chomp(<<-END)
+			Ready?  \e[7;1m   \e[4my\e[24mes   \e[0m    \e[4mn\e[24mo       \e[4mm\e[24maybe   
+			\e[A\e[7C\e[K    \e[4my\e[24mes    \e[7;1m   \e[4mn\e[24mo   \e[0m    \e[4mm\e[24maybe   
+			\e[A\e[7C\e[K    \e[4my\e[24mes       \e[4mn\e[24mo    \e[7;1m   \e[4mm\e[24maybe   \e[0m
+			\e[A\e[7C\e[K    \e[4my\e[24mes       \e[4mn\e[24mo    \e[7;1m   \e[4mm\e[24maybe   \e[0m
+			GOT maybe
 		END
 
 		assert_equal expected, out

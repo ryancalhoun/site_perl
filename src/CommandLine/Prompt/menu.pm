@@ -1,3 +1,5 @@
+use List::Util 'sum';
+
 sub _name
 {
 	ref($_[0]) eq 'HASH' ? $_[0]->{name} : $_[0];
@@ -291,13 +293,20 @@ sub _menu_term_impl
 
 		my $status;
 
-		if($depth > 0 or ref($selected->()) eq 'HASH')
+		if($multi)
 		{
-			$status = "Use UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: ";
+			$status = "Use UP/DOWN and SPACE to select, ENTER to accept: ";
 		}
 		else
 		{
-			$status = "Use UP/DOWN to select, ENTER to choose, ESC to skip: ";
+			if($depth > 0 or ref($selected->()) eq 'HASH')
+			{
+				$status = "Use UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: ";
+			}
+			else
+			{
+				$status = "Use UP/DOWN to select, ENTER to choose, ESC to skip: ";
+			}
 		}
 
 		my $msg = $status . $line;
@@ -419,6 +428,116 @@ sub _menu_term_impl
 
 	} grep { $value{$_} } keys %value;
 	$multi ? @result : $result[0];
+}
+
+sub _choice_basic_impl
+{
+	my ($p,@values) = @_;
+
+	print $p, join(', ', map { "\033[4m" . substr($_, 0, 1) . "\033[24m" . substr($_, 1)} @values), ": ";
+
+	while(1)
+	{
+		my $ans = getline();
+
+		return $values[0] unless $ans;
+
+		for(0..$#values)
+		{
+			my $v = lc $values[$_];
+			my $a = lc $ans;
+
+			if($a eq $v or $a eq substr($v, 0, 1))
+			{
+				return $values[$_];
+			}
+		}
+
+		print "Not understood, try again: ";
+	}
+}
+
+sub _choice_term_impl
+{
+	my ($p,@values) = @_;
+
+	my $reset;
+	my $i = 0;
+
+	my $w = length($p);
+
+	my $display = sub {
+		if($reset)
+		{
+			print $reset;
+		}
+		else
+		{
+			$reset = "\033[A\033[${w}C\033[K";
+		}
+
+		for(0..$#values)
+		{
+			my $v = $values[$_];
+			$v = "\033[4m" . substr($v, 0, 1) . "\033[24m" . substr($v, 1);
+
+			if($i == $_)
+			{
+				print " \033[7;1m   $v   \033[0m";
+			}
+			else
+			{
+				print "    $v   ";
+			}
+		}
+		print "\n";
+	};
+
+	print $p;
+	$display->();
+
+	my $line;
+
+	CommandLine::Terminal::raw();
+	eval
+	{
+		while(1)
+		{
+			my $ch = CommandLine::Terminal::getchar();
+
+			die "<Ctrl+C>$/" if $ch->CTRL_C;
+
+			last if $ch->ENTER;
+
+			if($ch->RIGHT)
+			{
+				++$i if($i < $#values);
+			}
+			elsif($ch->LEFT)
+			{
+				--$i if $i >0;
+			}
+			elsif($ch->CHAR)
+			{
+				for(0..$#values)
+				{
+			
+					if(lc(substr($values[$_], 0, 1)) eq lc($ch))
+					{
+						$i = $_;
+						last;
+					}
+				}
+			}
+
+			$display->();
+		}
+	};
+	CommandLine::Terminal::normal();
+
+	die $@ if $@;
+
+	$values[$i];
 }
 
 1

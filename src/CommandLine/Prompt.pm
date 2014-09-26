@@ -69,10 +69,22 @@ sub import
 	require CommandLine::Terminal;
 	CommandLine::Terminal->import(map { $_ => $cfg{$_} } grep { /IN/ } keys %cfg);
 
-	*complete_file = CommandLine::Terminal::supports_raw() ? \&complete_file_term : \&complete_file_basic;
-	*getline = CommandLine::Terminal::supports_raw() ? \&getline_term : \&getline_basic;
-	*menu = CommandLine::Terminal::supports_raw() ? \&menu_term : \&menu_basic;
-	*multimenu = CommandLine::Terminal::supports_raw() ? \&multimenu_term : \&multimenu_basic;
+	if(CommandLine::Terminal::supports_raw())
+	{
+		*complete_file = \&complete_file_term;
+		*getline = \&getline_term;
+		*menu = \&menu_term;
+		*multimenu = \&multimenu_term;
+		*choice = \&choice_term;
+	}
+	else
+	{
+		*complete_file = \&complete_file_basic;
+		*getline = \&getline_basic;
+		*menu = \&menu_basic;
+		*multimenu = \&multimenu_basic;
+		*choice = \&choice_basic;
+	}
 }
 
 sub string
@@ -124,6 +136,18 @@ sub multimenu_term
 {
 	_menu_term_impl(1, @_);
 }
+
+sub choice_basic
+{
+	_choice_basic_impl(@_);
+}
+
+sub choice_term
+{
+	_choice_term_impl(@_);
+}
+
+
 sub getline_basic
 {
 	chomp(my $value = <$IN>);
