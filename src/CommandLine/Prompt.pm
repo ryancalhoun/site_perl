@@ -40,6 +40,17 @@ provide a tab-complete. Non-directories are filtered out of tab-complete candida
 Display prompt text and numbered menu values. If the input handle (STDIN) can be put into raw mode,
 show a highlighted menu navigable with arrow keys.
 
+=item CommandLine::Prompt::multimenu $prompt_text, @values
+
+Display prompt text and numbered menu values. If the input handle (STDIN) can be put into raw mode,
+show a highlighted menu navigable with arrow keys and selectable with SPACE. Else a comma-separated
+range of values.
+
+=item CommandLine::Prompt::choice $prompt_text, @values
+
+Display a compact prompt with a limited set of possible answers. If the input handle (STDIN) can be put into
+raw mode, show a highlighted list.
+
 =back
 
 =cut
