@@ -100,7 +100,6 @@ sub options(&)
 	my @help;
 	my %opts;
 
-
 	{
 		my $caller = (caller)[0];
 
@@ -169,8 +168,6 @@ sub options(&)
 		'',
 		@help, '', ''
 	);
-	#$usagemsg = "$a$/$b$/  $c$/$/";
-	#print "MSG $usagemsg";
 	$usagemsg .= "=head1 DESCRIPTION$/$/$description" if $description;
 
 	my $fn = sub {
@@ -189,6 +186,5 @@ sub options(&)
 	*{$package . '::_getmessage'} = sub { $usagemsg };
 	bless $fn, $package;
 }
-
 
 1
