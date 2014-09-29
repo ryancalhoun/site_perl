@@ -129,6 +129,11 @@ sub getchar
 					$c .= $k;
 				} until(ord($k) >= 64 and ord($k) <= 126);
 			}
+			elsif($k eq 'O')
+			{
+				$c .= $k;
+				$c .= $getchar_nb->();
+			}
 			else
 			{
 				$IN->ungetc(ord($k));
@@ -191,6 +196,65 @@ sub TAB
 sub BS
 {
 	ord($_[0]) == 8 or ord($_[0]) == 127;
+}
+
+sub HOME
+{
+	$_[0] eq "\033OH" or $_[0] eq "\033[H";
+}
+
+*END = sub {
+	$_[0] eq "\033OF" or $_[0] eq "\033[F";
+};
+
+sub PAGEUP
+{
+	$_[0] eq "\033[5~";
+}
+
+sub PAGEDOWN
+{
+	$_[0] eq "\033[6~";
+}
+
+sub F5
+{
+	$_[0] eq "\033[15~";
+}
+
+sub F6
+{
+	$_[0] eq "\033[17~";
+}
+
+sub F7
+{
+	$_[0] eq "\033[18~";
+}
+
+sub F8
+{
+	$_[0] eq "\033[19~";
+}
+
+sub F9
+{
+	$_[0] eq "\033[20~";
+}
+
+sub F10
+{
+	$_[0] eq "\033[21~";
+}
+
+sub F11
+{
+	$_[0] eq "\033[23~";
+}
+
+sub F12
+{
+	$_[0] eq "\033[24~";
 }
 
 sub UP
