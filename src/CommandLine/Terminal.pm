@@ -198,6 +198,8 @@ sub BS
 	ord($_[0]) == 8 or ord($_[0]) == 127;
 }
 
+*BACKSPACE = \&BS;
+
 sub HOME
 {
 	$_[0] eq "\033OH" or $_[0] eq "\033[H";
@@ -206,6 +208,11 @@ sub HOME
 *END = sub {
 	$_[0] eq "\033OF" or $_[0] eq "\033[F";
 };
+
+sub DELETE
+{
+	$_[0] eq "\033[3~";
+}
 
 sub PAGEUP
 {

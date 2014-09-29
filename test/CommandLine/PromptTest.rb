@@ -21,7 +21,12 @@ class PromptTest < Test::Unit::TestCase
 			stdout.read
 		}
 
-		assert_equal "> hello world\nGOT hello world\n", out
+		expected = left_chomp(<<-END)
+			> h\e[K\e[1D\e[Khe\e[K\e[2D\e[Khel\e[K\e[3D\e[Khell\e[K\e[4D\e[Khello\e[K\e[5D\e[Khello \e[K\e[6D\e[Khello w\e[K\e[7D\e[Khello wo\e[K\e[8D\e[Khello wor\e[K\e[9D\e[Khello worl\e[K\e[10D\e[Khello world\e[K
+			GOT hello world
+		END
+
+		assert_equal expected, out
 	end
 
 	def testStringPattern
@@ -42,7 +47,13 @@ class PromptTest < Test::Unit::TestCase
 			stdout.read
 		}
 
-		assert_equal "> goodbye\nNot understood, try again: yes\nGOT yes\n", out
+		expected = left_chomp(<<-END)
+			> g\e[K\e[1D\e[Kgo\e[K\e[2D\e[Kgoo\e[K\e[3D\e[Kgood\e[K\e[4D\e[Kgoodb\e[K\e[5D\e[Kgoodby\e[K\e[6D\e[Kgoodbye\e[K
+			Not understood, try again: y\e[K\e[1D\e[Kye\e[K\e[2D\e[Kyes\e[K
+			GOT yes
+		END
+
+		assert_equal expected, out
 	end
 
 	def testFile
