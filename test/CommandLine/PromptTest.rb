@@ -203,17 +203,17 @@ class PromptTest < Test::Unit::TestCase
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2  two          \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one          
 			\e[K   2  two          
 			\e[K \e[7;1m  3  three        \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[KGOT three
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[KGOT three
 		END
 
 		assert_equal expected, out
@@ -240,35 +240,35 @@ class PromptTest < Test::Unit::TestCase
 			> 
 			\e[K \e[7;1m  1  one          \e[0m
 			\e[K   2  two          
-			\e[K   3  three ...    
+			\e[K   3  three  ->    
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2  two          \e[0m
-			\e[K   3  three ...    
+			\e[K   3  three  ->    
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN to select, ENTER to choose, ESC to skip: \e[53D\e[5A\e[K   1  one          
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one          
 			\e[K   2  two          
-			\e[K \e[7;1m  3  three ...    \e[0m
+			\e[K \e[7;1m  3  three  ->    \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one          
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one          
 			\e[K   2  two          
-			\e[K \e[7;1m  3  three ...    \e[0m
+			\e[K \e[7;1m  3  three  ->    \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one           \e[7;1m  1  four        \e[0m
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one           \e[7;1m  1  four        \e[0m
 			\e[K   2  two             2  five        
-			\e[K \e[37;40m  3  three ...    \e[0m                  
+			\e[K \e[37;40m  3  three  ->    \e[0m                  
 			\e[K                                     
 			                                       
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[5A\e[K   1  one             1  four        
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one             1  four        
 			\e[K   2  two           \e[7;1m  2  five        \e[0m
-			\e[K \e[37;40m  3  three ...    \e[0m                  
+			\e[K \e[37;40m  3  three  ->    \e[0m                  
 			\e[K                                     
 			                                       
-			\e[KUse UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: \e[64D\e[KGOT five
+			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[KGOT five
 		END
 
 		assert_equal expected, out
@@ -299,27 +299,27 @@ class PromptTest < Test::Unit::TestCase
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2  two          \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2 [two]         \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
 			\e[K   2 [two]         
 			\e[K \e[7;1m  3  three        \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
 			\e[K   2 [two]         
 			\e[K \e[7;1m  3 [three]       \e[0m
 			\e[K                   
 			                    
-			\e[KUse UP/DOWN and SPACE to select, ENTER to accept: \e[50D\e[KGOT two three
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[KGOT two three
 		END
 
 		assert_equal expected, out

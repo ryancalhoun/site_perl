@@ -86,10 +86,36 @@ sub _menu_term_impl
 	my @item = (0);
 	my @pos = (0);
 	my $depth = 0;
+	my $help;
 
 	my $reset;
 	my $line = '';
 	my %value;
+
+	my $status = sub {
+
+		my $exp = grep { ref($_) eq 'HASH' } @values;
+
+		if($help)
+		{
+			my @h;
+			push @h, "UP/DOWN to scroll.";
+			push @h, "RIGHT/LEFT to expand '->' entries." if $exp;
+			push @h, "SPACE to select." if $multi;
+			push @h, "Ctrl+A select all." if $multi;
+			push @h, "Ctrl+N select none." if $multi;
+			push @h, "ESC to skip.";
+			return join(' ', @h);
+		}
+		if($multi)
+		{
+			"Make selection(s) with arrows and SPACE, and press ENTER (?' for help): ";
+		}
+		else
+		{
+			"Make selection with arrows and press ENTER ('?' for help): ";
+		}
+	};
 
 	my $limit;
 	$limit = sub {
@@ -149,11 +175,11 @@ sub _menu_term_impl
 			{
 				if($selected)
 				{
-					"[$v->[$i]->{name}]...";
+					"[$v->[$i]->{name}] ->";
 				}
 				else
 				{
-					" $v->[$i]->{name} ...";
+					" $v->[$i]->{name}  ->";
 				}
 
 			}
@@ -294,25 +320,7 @@ sub _menu_term_impl
 
 		print $/;
 
-		my $status;
-
-		if($multi)
-		{
-			$status = "Use UP/DOWN and SPACE to select, ENTER to accept: ";
-		}
-		else
-		{
-			if($depth > 0 or ref($selected->()) eq 'HASH')
-			{
-				$status = "Use UP/DOWN/LEFT/RIGHT to select, ENTER to choose, ESC to skip: ";
-			}
-			else
-			{
-				$status = "Use UP/DOWN to select, ENTER to choose, ESC to skip: ";
-			}
-		}
-
-		my $msg = $status . $line;
+		my $msg = $status->() . $line;
 		printf "\033[K%s\033[%dD", $msg, length($msg);
 	};
 
@@ -342,19 +350,20 @@ sub _menu_term_impl
 			{
 				%value = ();
 				$item[$depth] = -1;
+				$display->();
 				last;
 			}
 			elsif($ch eq " " and $multi)
 			{
 				$value{$key} = not $value{$key};
 			}
-			elsif($ch->CTRL_A and $multi)
+			elsif(($ch->CTRL_A or lc($ch) eq 'a') and $multi)
 			{
 				$value{$_} = 1 for map {
 					join(',', @item[0..$depth-1], $_)
 				} 0..$limit->($depth)-1;
 			}
-			elsif($ch->CTRL_N and $multi)
+			elsif(($ch->CTRL_N or lc($ch) eq 'n') and $multi)
 			{
 				$value{$_} = 0 for map {
 					join(',', @item[0..$depth-1], $_)
@@ -401,6 +410,16 @@ sub _menu_term_impl
 			{
 				chop $line;
 				$item[$depth] = int($line || 0) - 1;
+			}
+
+			if($ch =~ /^(?:\?|h)$/)
+			{
+				$line = '';
+				$help = not $help;
+			}
+			else
+			{
+				$help = 0;
 			}
 			$display->();
 		}
