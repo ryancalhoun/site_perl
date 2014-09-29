@@ -87,10 +87,12 @@ sub _menu_term_impl
 	my @pos = (0);
 	my $depth = 0;
 	my $help;
+	my $warn;
 
 	my $reset;
 	my $line = '';
 	my %value;
+	my $anykey;
 
 	my $status = sub {
 
@@ -107,13 +109,19 @@ sub _menu_term_impl
 			push @h, "ESC to skip.";
 			return join(' ', @h);
 		}
+		elsif($warn and not $anykey)
+		{
+			$warn = 0;
+			$anykey = 1;
+			return "\033[31;1mWARNING: Nothing selected. Press ENTER to confirm ('?' for help):\033[0m";
+		}
 		if($multi)
 		{
-			"Make selection(s) with arrows and SPACE, and press ENTER (?' for help): ";
+			return "Make selection(s) with arrows and SPACE, and press ENTER ('?' for help): ";
 		}
 		else
 		{
-			"Make selection with arrows and press ENTER ('?' for help): ";
+			return "Make selection with arrows and press ENTER ('?' for help): ";
 		}
 	};
 
@@ -343,8 +351,16 @@ sub _menu_term_impl
 
 			if($ch->ENTER)
 			{
-				$value{$key} = 1 unless $multi;
-				last;
+				if($multi)
+				{
+					last if $anykey;
+					$warn = 1;
+				}
+				else
+				{
+					$value{$key} = 1;
+					last;
+				}
 			}
 			elsif($ch->ESC or $ch =~ /q/i)
 			{
@@ -355,6 +371,7 @@ sub _menu_term_impl
 			}
 			elsif($ch eq " " and $multi)
 			{
+				$anykey = 1;
 				$value{$key} = not $value{$key};
 			}
 			elsif(($ch->CTRL_A or lc($ch) eq 'a') and $multi)
@@ -415,12 +432,14 @@ sub _menu_term_impl
 			if($ch =~ /^(?:\?|h)$/)
 			{
 				$line = '';
+				$anykey = 1;
 				$help = not $help;
 			}
 			else
 			{
 				$help = 0;
 			}
+
 			$display->();
 		}
 	};

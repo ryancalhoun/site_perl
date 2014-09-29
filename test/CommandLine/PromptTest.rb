@@ -299,27 +299,27 @@ class PromptTest < Test::Unit::TestCase
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER ('?' for help): \e[73D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2  two          \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER ('?' for help): \e[73D\e[5A\e[K   1  one          
 			\e[K \e[7;1m  2 [two]         \e[0m
 			\e[K   3  three        
 			\e[K                   
 			                    
-			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER ('?' for help): \e[73D\e[5A\e[K   1  one          
 			\e[K   2 [two]         
 			\e[K \e[7;1m  3  three        \e[0m
 			\e[K                   
 			                    
-			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[5A\e[K   1  one          
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER ('?' for help): \e[73D\e[5A\e[K   1  one          
 			\e[K   2 [two]         
 			\e[K \e[7;1m  3 [three]       \e[0m
 			\e[K                   
 			                    
-			\e[KMake selection(s) with arrows and SPACE, and press ENTER (?' for help): \e[72D\e[KGOT two three
+			\e[KMake selection(s) with arrows and SPACE, and press ENTER ('?' for help): \e[73D\e[KGOT two three
 		END
 
 		assert_equal expected, out
