@@ -394,6 +394,28 @@ sub _menu_term_impl
 			{
 				$item[$depth] = $limit->($depth) - 1;
 			}
+			elsif($ch->PAGEUP)
+			{
+				if($item[$depth] > $rows)
+				{
+					$item[$depth] -= $rows;
+				}
+				else
+				{
+					$item[$depth] = 0;
+				}
+			}
+			elsif($ch->PAGEDOWN)
+			{
+				if($item[$depth] + $rows < $limit->($depth) - 1)
+				{
+					$item[$depth] += $rows;
+				}
+				else
+				{
+					$item[$depth] = $limit->($depth) - 1;
+				}
+			}
 			elsif($ch->UP)
 			{
 				if($item[$depth] > 0)
