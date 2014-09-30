@@ -19,11 +19,11 @@ sub _complete_file_term_impl
 	my $read_yn;
 
 	my $reset = "\033[A\n\033[K";
-	my $error = sub
+	my $nosuch = sub
 	{
 		print $reset;
 		$reset = "\033[2A\n\033[K";
-		print "\033[31;1mError: $_[0]\033[0m\n";
+		print "\033[31;1mError: no such file or directory: $_[0]\033[0m\n";
 		print "$p$line";
 	};
 
@@ -54,7 +54,7 @@ sub _complete_file_term_impl
 		if($c->ENTER)
 		{
 			return 0 if not $value or -e $value;
-			$error->("no such file or directory");
+			$nosuch->($value);
 		}
 		elsif($c->CTRL_C)
 		{
@@ -134,15 +134,10 @@ sub _complete_file_term_impl
 			my $part = "$value$c";
 			$part .= '*' unless $part eq '~';
 
-			if($filter->(glob $part))
-			{
-				print $c;
-				map { $_ .= $c } $line, $value;
-			}
-			else
-			{
-				$error->("no such path \"$value$c\".");
-			}
+			print $c;
+			map { $_ .= $c } $line, $value;
+
+			$nosuch->($value) unless($filter->(glob $part));
 		}
 		else
 		{
