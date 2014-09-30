@@ -271,12 +271,12 @@ class PromptTest < Test::Unit::TestCase
 			                    
 			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one           \e[7;1m  1  four        \e[0m
 			\e[K   2  two             2  five        
-			\e[K \e[37;40m  3  three  ->    \e[0m                  
+			\e[K \e[7;2m  3  three  ->    \e[0m                  
 			\e[K                                     
 			                                       
 			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[5A\e[K   1  one             1  four        
 			\e[K   2  two           \e[7;1m  2  five        \e[0m
-			\e[K \e[37;40m  3  three  ->    \e[0m                  
+			\e[K \e[7;2m  3  three  ->    \e[0m                  
 			\e[K                                     
 			                                       
 			\e[KMake selection with arrows and press ENTER ('?' for help): \e[59D\e[KGOT five

@@ -104,8 +104,8 @@ sub _menu_term_impl
 			push @h, "UP/DOWN to scroll.";
 			push @h, "RIGHT/LEFT to expand '->' entries." if $exp;
 			push @h, "SPACE to select." if $multi;
-			push @h, "Ctrl+A select all." if $multi;
-			push @h, "Ctrl+N select none." if $multi;
+			push @h, "Ctrl+A all." if $multi;
+			push @h, "Ctrl+N none." if $multi;
 			push @h, "ESC to skip.";
 			return join(' ', @h);
 		}
@@ -296,7 +296,7 @@ sub _menu_term_impl
 						}
 						else
 						{
-							printf " \033[37;40m %2d %-${w}s   \033[0m", $i + 1, $text;
+							printf " \033[7;2m %2d %-${w}s   \033[0m", $i + 1, $text;
 						}
 					}
 					else
@@ -385,6 +385,14 @@ sub _menu_term_impl
 				$value{$_} = 0 for map {
 					join(',', @item[0..$depth-1], $_)
 				} 0..$limit->($depth)-1;
+			}
+			elsif($ch->HOME)
+			{
+				$item[$depth] = 0;
+			}
+			elsif($ch->END)
+			{
+				$item[$depth] = $limit->($depth) - 1;
 			}
 			elsif($ch->UP)
 			{

@@ -23,7 +23,7 @@ sub _complete_file_term_impl
 	{
 		print $reset;
 		$reset = "\033[2A\n\033[K";
-		print "Error: $_[0]\n";
+		print "\033[31;1mError: $_[0]\033[0m\n";
 		print "$p$line";
 	};
 
