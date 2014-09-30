@@ -202,11 +202,11 @@ sub BS
 
 sub HOME
 {
-	$_[0] eq "\033OH" or $_[0] eq "\033[H";
+	$_[0] eq "\033[1~" or $_[0] eq "\033OH";
 }
 
 *END = sub {
-	$_[0] eq "\033OF" or $_[0] eq "\033[F";
+	$_[0] eq "\033[4~" or $_[0] eq "\033OF";
 };
 
 sub DELETE
