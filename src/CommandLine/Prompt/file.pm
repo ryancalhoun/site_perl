@@ -53,12 +53,12 @@ sub _complete_file_term_impl
 		my $c = shift;
 		if($c->ENTER)
 		{
-			return 0 if not $value or -e $value;
+			return 0 if not defined($value) or not length($value) or -e $value;
 			$nosuch->($value);
 		}
 		elsif($c->CTRL_C)
 		{
-			die "<Ctrl+C>$/" unless $value;
+			die "<Ctrl+C>$/" unless defined($value) and length($value);
 			undef $value;
 			return 0;
 		}
@@ -67,9 +67,9 @@ sub _complete_file_term_impl
 			undef $value;
 			return 0;
 		}
-		elsif($c->BS)
+		elsif($c->BACKSPACE)
 		{
-			print "\b\033[K" if $value;
+			print "\b\033[K" if defined($value) and length($value);
 			chop $value if $value eq $line;
 			chop $line;
 		}
@@ -80,7 +80,7 @@ sub _complete_file_term_impl
 			if(@candidates)
 			{
 				my $prefix = String::Util::longest_common_prefix(@candidates);
-				my $remainder = substr($prefix, length $line);
+				my $remainder = substr($prefix, length($line));
 
 				my $update = $value ne substr($prefix, 0, length($value));
 
