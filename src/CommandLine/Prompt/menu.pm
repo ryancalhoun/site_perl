@@ -376,12 +376,14 @@ sub _menu_term_impl
 			}
 			elsif(($ch->CTRL_A or lc($ch) eq 'a') and $multi)
 			{
+				$anykey = 1;
 				$value{$_} = 1 for map {
 					join(',', @item[0..$depth-1], $_)
 				} 0..$limit->($depth)-1;
 			}
 			elsif(($ch->CTRL_N or lc($ch) eq 'n') and $multi)
 			{
+				$anykey = 1;
 				$value{$_} = 0 for map {
 					join(',', @item[0..$depth-1], $_)
 				} 0..$limit->($depth)-1;
