@@ -115,7 +115,7 @@ sub getchar
 {
 	my $c = $getchar->();
 
-	if(ord($c) == 27)
+	if(defined $c and ord($c) == 27)
 	{
 		my $k = $getchar_nb->();
 		if(defined $k)
@@ -151,7 +151,7 @@ sub supports_raw
 
 package CommandLine::Terminal::Key;
 
-use overload '""' => sub { $_[0]->{value} };
+use overload '""' => sub { my $v = $_[0]->{value}; defined $v ? $v : "\0" };
 use overload 'eq' => sub { "$_[0]" eq $_[1] };
 
 sub new
@@ -175,7 +175,7 @@ BEGIN
 
 sub NUL
 {
-	ord($_[0]) == 0;
+	not defined "$_[0]" or ord($_[0]) == 0;
 }
 
 sub ESC
