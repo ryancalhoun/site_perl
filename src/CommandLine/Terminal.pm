@@ -129,6 +129,15 @@ sub getchar
 					$c .= $k;
 				} until(ord($k) >= 64 and ord($k) <= 126);
 			}
+			elsif($k eq ']')
+			{
+				$c .= $k;
+				do {
+					$k = $getchar_nb->();
+					last unless defined $k;
+					$c .= $k;
+				} until(ord($k) == 7);
+			}
 			elsif($k eq 'O')
 			{
 				$c .= $k;
