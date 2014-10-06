@@ -72,7 +72,10 @@ class PromptTest < Test::Unit::TestCase
 			stdout.read
 		}
 
-		assert_equal "> #{__FILE__}\nGOT #{__FILE__}\n", out
+		expected = "\n\n\e[2A" + __FILE__.size.times.map {|i| "\n\n\e[K\e[2A\n\e[K> #{__FILE__[0, i]}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> #{__FILE__}\n\e[KGOT #{__FILE__}\n"
+
+		assert_equal expected, out
 	end
 
 	def testFileTab
@@ -99,14 +102,14 @@ class PromptTest < Test::Unit::TestCase
 			stdout.read
 		}
 
-		expected = left_chomp(<<-END)
-			> tmpdir/foo/bar/
-			file.txt\\s+file.xml\\s+
-			> tmpdir/foo/bar/file.txt 
-			GOT tmpdir/foo/bar/file.txt
-		END
+		expected = "\n\n\e[2A" +
+		           ["", "t", "tm", "tmp", "tmpd", "tmpdi", "tmpdir", "tmpdir/",
+		            "tmpdir/f", "tmpdir/fo", "tmpdir/foo/"].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/foo/bar/\nfile.txt  file.xml  \n\n\e[2A" +
+		           ["tmpdir/foo/bar/file.", "tmpdir/foo/bar/file.t"].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/foo/bar/file.txt \n\e[KGOT tmpdir/foo/bar/file.txt\n"
 
-		assert_match /#{expected}/, out
+		assert_equal expected, out.gsub(/  +/, '  ')
 
 	ensure
 		FileUtils.rm_rf 'tmpdir'
@@ -147,7 +150,16 @@ class PromptTest < Test::Unit::TestCase
 			GOT tmpdir/foo/bar/file.txt
 		END
 
-		assert_match /#{expected}/, out
+		expected = "\n\n\e[2A" +
+		           ["", "t", "tm", "tmp", "tmpd", "tmpdi", "tmpdir", "tmpdir/"].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/f\nDisplay all 2 possibilities? (y or n)\nfoo/  fun/  \n\n\n\e[2A" +
+		           ["tmpdir/f", "tmpdir/fo", "tmpdir/foo/", ].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/foo/bar/\nDisplay all 2 possibilities? (y or n)\nfile.txt  file.xml  \n\n\n\e[2A" +
+		           ["tmpdir/foo/bar/file.", "tmpdir/foo/bar/file.t"].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/foo/bar/file.txt \n\e[KGOT tmpdir/foo/bar/file.txt\n"
+		
+
+		assert_equal expected, out.gsub(/  +/, '  ')
 
 	ensure
 		FileUtils.rm_rf 'tmpdir'
@@ -177,14 +189,13 @@ class PromptTest < Test::Unit::TestCase
 			stdout.read
 		}
 
-		expected = left_chomp(<<-END)
-			> tmpdir/f
-			foo/\\s+fun/\\s+
-			> tmpdir/foo/bar/
-			GOT tmpdir/foo/bar/
-		END
+		expected = "\n\n\e[2A" +
+		           ["", "t", "tm", "tmp", "tmpd", "tmpdi", "tmpdir", "tmpdir/"].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/f\nfoo/  fun/  \n\n\e[2A" +
+		           ["tmpdir/f", "tmpdir/fo", "tmpdir/foo/"].map {|f| "\n\n\e[K\e[2A\n\e[K> #{f}\n\e[2A"}.join +
+		           "\n\n\e[K\e[2A\n\e[K> tmpdir/foo/bar/\n\e[KGOT tmpdir/foo/bar/\n"
 
-		assert_match /#{expected}/, out
+		assert_equal expected, out.gsub(/  +/, '  ')
 
 	ensure
 		FileUtils.rm_rf 'tmpdir'

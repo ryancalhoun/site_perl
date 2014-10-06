@@ -7,8 +7,6 @@ sub _complete_file_term_impl
 
 	$filter ||= sub { @_ };
 
-	print $p;
-
 	my $line = '';
 	my $value = '';
 	my $prev = '';
@@ -18,13 +16,12 @@ sub _complete_file_term_impl
 	my $readpath;
 	my $read_yn;
 
-	my $reset = "\033[A\n\033[K";
-	my $nosuch = sub
+	my $nosuch;
+	my $display = sub
 	{
-		print $reset;
-		$reset = "\033[2A\n\033[K";
-		print "\033[31;1mError: no such file or directory: $_[0]\033[0m\n";
-		print "$p$line";
+		print "\033[2A\n\n\033[K";
+		print "\033[31;1mError: no such file or directory: $nosuch\033[0m" if $nosuch;
+		print "\033[2A\n\033[K$p$line";
 	};
 
 	my $showall = sub
@@ -54,7 +51,8 @@ sub _complete_file_term_impl
 		if($c->ENTER)
 		{
 			return 0 if not defined($value) or not length($value) or -e $value;
-			$nosuch->($value);
+
+			$nosuch = $value;
 		}
 		elsif($c->CTRL_C)
 		{
@@ -69,16 +67,16 @@ sub _complete_file_term_impl
 		}
 		elsif($c->BACKSPACE)
 		{
-			print "\b\033[K" if defined($value) and length($value);
 			chop $value if $value eq $line;
 			chop $line;
 		}
 		elsif($c->TAB and not -f $value)
 		{
-			@candidates = $filter->(glob "$line*");
+			@candidates = map { -d $_ ? "$_/" : $_ } $filter->(glob "$line*");
 
 			if(@candidates)
 			{
+				undef $nosuch;
 				my $prefix = String::Util::longest_common_prefix(@candidates);
 				my $remainder = substr($prefix, length($line));
 
@@ -90,15 +88,6 @@ sub _complete_file_term_impl
 				{
 					-f $value
 						and map { $_ .= ' ' } $line, $remainder
-						or map { $_ .= '/' } $value, $line, $remainder;
-					if($update)
-					{
-						print "\033[A\n\033[K$p$line";
-					}
-					else
-					{
-						print $remainder;
-					}
 				}
 				else
 				{
@@ -108,22 +97,11 @@ sub _complete_file_term_impl
 						{
 							print "\nDisplay all ", scalar @candidates, " possibilities? (y or n)";
 							$readchar = $read_yn;
+							return 1;
 						}
 						else
 						{
 							$showall->();
-							print "$p$line";
-						}
-					}
-					else
-					{
-						if($update)
-						{
-							print "\033[A\n\033[K$p$line";
-						}
-						else
-						{
-							print $remainder;
 						}
 					}
 				}
@@ -134,15 +112,18 @@ sub _complete_file_term_impl
 			my $part = "$value$c";
 			$part .= '*' unless $part eq '~';
 
-			print $c;
 			map { $_ .= $c } $line, $value;
 
-			$nosuch->($value) unless($filter->(glob $part));
+			undef $nosuch;
+			$nosuch = $value unless $filter->(glob $part);
 		}
 		else
 		{
 		}
 		$prev = $c;
+
+		print "\n";
+		$display->();
 		return 1;
 	};
 
@@ -157,15 +138,25 @@ sub _complete_file_term_impl
 		{
 			print "\n";
 		}
+		elsif($c->CTRL_C)
+		{
+			undef $value;
+			die "<Ctrl+C>$/";
+		}
 		else
 		{
 			return 1;
 		}
 
-		print "$p$line";
+		print "\n\n";
+		$display->();
+
 		$readchar = $readpath;
 		return 1;
 	};
+
+	print "\n\n";
+	$display->();
 
 	$readchar = $readpath;
 
@@ -182,7 +173,7 @@ sub _complete_file_term_impl
 	};
 	CommandLine::Terminal::normal();
 
-	print "\n";
+	print "\n\033[K";
 
 	die $@ if($@);
 	return $value;
