@@ -539,6 +539,13 @@ sub _choice_term_impl
 	my $i = 0;
 
 	my $w = length($p);
+	my $tw = sum(map { length() + 7 } @values);
+
+	if(($w + $tw) > CommandLine::Terminal::width())
+	{
+		$p .= "$/  ";
+		$w = 2;
+	}
 
 	my $display = sub {
 		if($reset)
