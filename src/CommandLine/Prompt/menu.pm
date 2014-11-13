@@ -82,7 +82,7 @@ sub _menu_term_impl
 {
 	my ($multi,$p,@values) = @_;
 
-	my $rows = 10;
+	my $rows = CommandLine::Terminal::height() - 5;
 	my @item = (0);
 	my @pos = (0);
 	my $depth = 0;

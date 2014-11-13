@@ -33,7 +33,11 @@ Restore cooked mode and echo.
 
 =item CommandLine::Terminal::width
 
-Get the with (number of columns) of the terminal.
+Get the width (number of columns) of the terminal.
+
+=item CommandLine::Terminal::height
+
+Get the height (number of rows) of the terminal.
 
 =item CommandLine::Terminal::supports_raw
 
@@ -89,6 +93,12 @@ sub import
 				close $s;
 				return $w;
 			};
+			*height = sub {
+				open my $s, "stty size|cut -d' ' -f1|";
+				chomp(my $h = <$s>);
+				close $s;
+				return $h;
+			};
 
 			$STTY = 1;
 		}
@@ -97,6 +107,7 @@ sub import
 			*raw = sub { die "cannot put non-terminal handle into raw mode" };
 			*normal = sub { };
 			*width = sub { };
+			*height = sub { };
 		}
 	}
 	else
@@ -106,6 +117,7 @@ sub import
 		*raw = sub { Term::ReadKey::ReadMode(4, $IN) };
 		*normal = sub { Term::ReadKey::ReadMode(1, $IN) };
 		*width = sub { eval { (Term::ReadKey::GetTerminalSize(0, $IN))[0] } || 80 };
+		*height = sub { eval { (Term::ReadKey::GetTerminalSize(0, $IN))[1] } || 24 };
 
 		$ReadKey = 1;
 	}
